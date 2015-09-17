@@ -14,6 +14,9 @@ let glopts = {
   alpha: true
 }
 let gl = el.getContext('webgl', glopts) || el.getContext('experimental-webgl', glopts)
+gl.enable(gl.DEPTH_TEST)
+gl.clearColor(0,0,0,0)
+gl.clearDepth(1)
 window.gl = gl
 let resize = function (w, h)
 {
@@ -27,7 +30,6 @@ window.addEventListener('resize', function(e) {
   resize(e.target.innerWidth, e.target.innerHeight)
 })
 window.dispatchEvent(new Event('resize'))
-gl.clearColor(0,0,0,0)
 let shad = function(type, source) {
   let shader = gl.createShader(type)
   gl.shaderSource(shader, source)

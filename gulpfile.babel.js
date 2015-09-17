@@ -27,14 +27,14 @@ gulp.task('jade', function() {
   let jade = require('gulp-jade')
   gulp.src('./app/**/*.jade')
   .pipe(jade({}))
-  .pipe(gulp.dest('./.tmp'))
+  .pipe(gulp.dest('.tmp'))
   .pipe(livereload())
 })
 gulp.task('sass', function() {
   let sass = require('gulp-sass')
   gulp.src('./app/**/*.scss')
   .pipe(sass())
-  .pipe(gulp.dest('./.tmp'))
+  .pipe(gulp.dest('.tmp'))
   .pipe(livereload())
 })
 
