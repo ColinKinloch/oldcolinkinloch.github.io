@@ -47,7 +47,7 @@ gulp.task('webpack', ['jade', 'sass'], function(cb) {
 gulp.task('serve', ['server'], function() {
   require('opn')('http://localhost:9000')
 })
-gulp.task('server', ['jade'], function() {
+gulp.task('server', ['jade', 'sass'], function() {
   let express = require('express')
   let devCompiler = webpack(webpackDevConfig)
   let app = express()
