@@ -1,0 +1,19 @@
+html {
+  height: 100%;
+  width: 100%;
+  color: gainsboro;
+  font-family: serif;
+  background: black;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+#main {
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+.content {
+  flex: 1;
+}
