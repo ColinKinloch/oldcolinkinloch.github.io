@@ -5,6 +5,9 @@ let glm = require('gl-matrix')
 let vert = require('./main.glslv')
 let frag = require('./main.glslf')
 
+let vertPost = require('./post.glslv')
+let fragPost = require('./post.glslf')
+
 let mv = glm.mat4.create()
 let proj = glm.mat4.create()
 
@@ -18,6 +21,33 @@ gl.enable(gl.DEPTH_TEST)
 gl.clearColor(0,0,0,0)
 gl.clearDepth(1)
 window.gl = gl
+
+let fb = gl.createFramebuffer()
+let db = gl.createRenderbuffer()
+let frame = gl.createTexture()
+
+gl.bindFramebuffer(gl.FRAMEBUFFER, fb)
+gl.bindRenderbuffer(gl.RENDERBUFFER, db)
+gl.bindTexture(gl.TEXTURE_2D, frame)
+
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+let s = 124
+gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, s, s)
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, s, s, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frame, 0)
+gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, db)
+
+window.fb = fb
+
+if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+  console.log('framebuffer incomplete')
+}
+
 let resize = function (w, h)
 {
   el.width = w
@@ -25,11 +55,16 @@ let resize = function (w, h)
   gl.viewport(0, 0, w, h)
   glm.mat4.perspective(proj, 45, w / h, 0.1, 100.0)
   //glm.mat4.ortho(proj, w / -2, w / 2, h / -2, h / 2, -100, 100)
+
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
 }
+
 window.addEventListener('resize', function(e) {
   resize(e.target.innerWidth, e.target.innerHeight)
 })
 window.dispatchEvent(new Event('resize'))
+
 let shad = function(type, source) {
   let shader = gl.createShader(type)
   gl.shaderSource(shader, source)
@@ -48,13 +83,36 @@ let prog = gl.createProgram()
 gl.attachShader(prog, vertShad)
 gl.attachShader(prog, fragShad)
 gl.linkProgram(prog)
-gl.useProgram(prog)
 
+gl.useProgram(prog)
 let vAttr = gl.getAttribLocation(prog, 'pos')
-gl.enableVertexAttribArray(vAttr)
 
 let mvUni = gl.getUniformLocation(prog, 'mv')
 let projUni = gl.getUniformLocation(prog, 'proj')
+
+let vertPostShad = shad(gl.VERTEX_SHADER, vertPost)
+let fragPostShad = shad(gl.FRAGMENT_SHADER, fragPost)
+
+let postProg = gl.createProgram()
+gl.attachShader(postProg, vertPostShad)
+gl.attachShader(postProg, fragPostShad)
+gl.linkProgram(postProg)
+
+gl.useProgram(postProg)
+let pvAttr = gl.getAttribLocation(postProg, 'position')
+
+let fUni = gl.getUniformLocation(postProg, 'frame')
+
+let sBuff = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, sBuff)
+gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([
+  0, 0,
+  0, 5,
+  5, 0
+]), gl.STATIC_DRAW)
+gl.enableVertexAttribArray(pvAttr)
+gl.vertexAttribPointer(pvAttr, 2, gl.UNSIGNED_BYTE, false, 0, 0)
+gl.disableVertexAttribArray(pvAttr)
 
 let vBuff = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
@@ -68,7 +126,9 @@ gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
    1, -1,  1,//6
    1, -1, -1 //7
 ]), gl.STATIC_DRAW)
-window.vBuff = vBuff
+gl.enableVertexAttribArray(vAttr)
+gl.vertexAttribPointer(vAttr, 3, gl.BYTE, false, 0, 0)
+gl.disableVertexAttribArray(vAttr)
 
 let iBuff = gl.createBuffer()
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
@@ -95,23 +155,39 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
 
 let draw = function () {
   requestAnimationFrame(draw)
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
   let r = performance.now() / 2000
 
   glm.mat4.identity(mv)
-  glm.mat4.translate(mv, mv, [0, 0, -10])
+  glm.mat4.translate(mv, mv, [0, 0, -12])
   glm.mat4.rotate(mv, mv, r, [1,0,1])
-  glm.mat4.scale(mv, mv, [0.75, 2.25, 1.5])
+  glm.mat4.scale(mv, mv, [0.15, 2.25, 1.5])
 
-  gl.vertexAttribPointer(vAttr, 3, gl.BYTE, false, 0, 0)
-
+  gl.useProgram(prog)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb)
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
 
+  gl.enableVertexAttribArray(vAttr)
   gl.uniformMatrix4fv(projUni, false, proj)
   gl.uniformMatrix4fv(mvUni, false, mv)
 
+  gl.activeTexture(gl.TEXTURE0)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
+  gl.disableVertexAttribArray(vAttr)
+
+
+  gl.useProgram(postProg)
+  gl.enableVertexAttribArray(pvAttr)
+  gl.uniform1i(fUni, 0)
+  gl.activeTexture(gl.TEXTURE0)
+  gl.bindTexture(gl.TEXTURE_2D, frame)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  gl.bindBuffer(gl.ARRAY_BUFFER, sBuff)
+  gl.drawArrays(gl.TRIANGLES, 0, 3)
+  gl.disableVertexAttribArray(pvAttr)
 }
 draw()
