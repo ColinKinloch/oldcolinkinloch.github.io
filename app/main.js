@@ -36,12 +36,15 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 let s = 124
-gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, s, s)
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, s, s, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, s, s)
 
 gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frame, 0)
 gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, db)
 
+gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+gl.bindTexture(gl.TEXTURE_2D, null)
 window.fb = fb
 
 if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
@@ -56,8 +59,12 @@ let resize = function (w, h)
   glm.mat4.perspective(proj, 45, w / h, 0.1, 100.0)
   //glm.mat4.ortho(proj, w / -2, w / 2, h / -2, h / 2, -100, 100)
 
+  gl.bindRenderbuffer(gl.RENDERBUFFER, db)
   gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h)
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+  gl.bindTexture(gl.TEXTURE_2D, frame)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+  gl.bindTexture(gl.TEXTURE_2D, null)
 }
 
 window.addEventListener('resize', function(e) {
@@ -163,8 +170,8 @@ let draw = function () {
   glm.mat4.rotate(mv, mv, r, [1,0,1])
   glm.mat4.scale(mv, mv, [0.15, 2.25, 1.5])
 
-  gl.useProgram(prog)
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb)
+  gl.useProgram(prog)
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
 
@@ -173,21 +180,33 @@ let draw = function () {
   gl.uniformMatrix4fv(mvUni, false, mv)
 
   gl.activeTexture(gl.TEXTURE0)
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  gl.bindTexture(gl.TEXTURE_2D, frame)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
   gl.disableVertexAttribArray(vAttr)
 
 
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.useProgram(postProg)
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
+
+  gl.enableVertexAttribArray(vAttr)
+  gl.uniformMatrix4fv(projUni, false, proj)
+  gl.uniformMatrix4fv(mvUni, false, mv)
+
+  gl.activeTexture(gl.TEXTURE0)
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
+  gl.disableVertexAttribArray(vAttr)
+  /*gl.useProgram(postProg)
   gl.enableVertexAttribArray(pvAttr)
   gl.uniform1i(fUni, 0)
   gl.activeTexture(gl.TEXTURE0)
   gl.bindTexture(gl.TEXTURE_2D, frame)
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   gl.bindBuffer(gl.ARRAY_BUFFER, sBuff)
   gl.drawArrays(gl.TRIANGLES, 0, 3)
-  gl.disableVertexAttribArray(pvAttr)
+  gl.disableVertexAttribArray(pvAttr)*/
 }
 draw()

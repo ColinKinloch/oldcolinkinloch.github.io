@@ -13,8 +13,8 @@ let config = {
   module: {
     loaders: [
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader', query: babelrc },
-      { test: /\.glsl[v,f]?$/, exclude: /node_modules/, loader: 'raw' },
-      { test: /\.glsl[v,f]?$/, exclude: /node_modules/, loader: 'glslify' }
+      { test: /\.(frag|vect|glsl[v,f]?)$/, exclude: /node_modules/, loader: 'raw' },
+      { test: /\.(frag|vect|glsl[v,f]?)$/, exclude: /node_modules/, loader: 'glslify' }
     ]
   }
 
