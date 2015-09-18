@@ -9,5 +9,5 @@ varying vec2 screenCoords;
 uniform float t;
 
 void main() {
-  gl_FragColor = texture2D(frame, deres(screenCoords, 250.0));//vec2(int(screenCoords.x), int(screenCoords.y)));
+  gl_FragColor = texture2D(frame, deres(screenCoords, 250.0 * (0.8 + 0.7 * sin(t))));
 }

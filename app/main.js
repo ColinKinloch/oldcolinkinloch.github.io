@@ -160,11 +160,11 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
 let draw = function () {
   requestAnimationFrame(draw)
 
-  let t = performance.now() / 2000
+  let t = performance.now() / 10000
 
   glm.mat4.identity(mv)
   glm.mat4.translate(mv, mv, [0, 0, -12])
-  glm.mat4.rotate(mv, mv, t, [1,0,1])
+  glm.mat4.rotate(mv, mv, t * 10, [1,0,1])
   glm.mat4.scale(mv, mv, [0.15, 2.25, 1.5])
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb)
@@ -190,11 +190,12 @@ let draw = function () {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.bindBuffer(gl.ARRAY_BUFFER, sBuff)
   gl.vertexAttribPointer(pvAttr, 2, gl.UNSIGNED_BYTE, false, 0, 0)
-  gl.uniform1f(tUni, false, t)
+  gl.uniform1f(tUni, t * 10)
   gl.enableVertexAttribArray(pvAttr)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null)
   gl.drawArrays(gl.TRIANGLES, 0, 3)
   gl.disableVertexAttribArray(pvAttr)
 }
+
 draw()
