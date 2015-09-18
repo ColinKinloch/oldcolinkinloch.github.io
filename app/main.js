@@ -92,7 +92,8 @@ gl.attachShader(prog, fragShad)
 gl.linkProgram(prog)
 
 gl.useProgram(prog)
-let vAttr = gl.getAttribLocation(prog, 'pos')
+let vAttr = gl.getAttribLocation(prog, 'position')
+let nAttr = gl.getAttribLocation(prog, 'normal')
 
 let mvUni = gl.getUniformLocation(prog, 'mv')
 let projUni = gl.getUniformLocation(prog, 'proj')
@@ -118,10 +119,6 @@ gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([
   0, 5,
   5, 0
 ]), gl.STATIC_DRAW)
-//gl.enableVertexAttribArray(pvAttr)
-gl.useProgram(postProg)
-gl.vertexAttribPointer(pvAttr, 2, gl.UNSIGNED_BYTE, false, 0, 0)
-//gl.disableVertexAttribArray(pvAttr)
 
 let vBuff = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
@@ -135,10 +132,6 @@ gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
    1, -1,  1,//6
    1, -1, -1 //7
 ]), gl.STATIC_DRAW)
-//gl.enableVertexAttribArray(vAttr)
-gl.useProgram(prog)
-//gl.vertexAttribPointer(vAttr, 3, gl.BYTE, false, 0, 0)
-//gl.disableVertexAttribArray(vAttr)
 
 
 let iBuff = gl.createBuffer()
