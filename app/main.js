@@ -109,6 +109,7 @@ gl.useProgram(postProg)
 let pvAttr = gl.getAttribLocation(postProg, 'position')
 
 let fUni = gl.getUniformLocation(postProg, 'frame')
+let tUni = gl.getUniformLocation(postProg, 't')
 
 let sBuff = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, sBuff)
@@ -117,9 +118,10 @@ gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([
   0, 5,
   5, 0
 ]), gl.STATIC_DRAW)
-gl.enableVertexAttribArray(pvAttr)
+//gl.enableVertexAttribArray(pvAttr)
+gl.useProgram(postProg)
 gl.vertexAttribPointer(pvAttr, 2, gl.UNSIGNED_BYTE, false, 0, 0)
-gl.disableVertexAttribArray(pvAttr)
+//gl.disableVertexAttribArray(pvAttr)
 
 let vBuff = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
@@ -133,9 +135,11 @@ gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
    1, -1,  1,//6
    1, -1, -1 //7
 ]), gl.STATIC_DRAW)
-gl.enableVertexAttribArray(vAttr)
-gl.vertexAttribPointer(vAttr, 3, gl.BYTE, false, 0, 0)
-gl.disableVertexAttribArray(vAttr)
+//gl.enableVertexAttribArray(vAttr)
+gl.useProgram(prog)
+//gl.vertexAttribPointer(vAttr, 3, gl.BYTE, false, 0, 0)
+//gl.disableVertexAttribArray(vAttr)
+
 
 let iBuff = gl.createBuffer()
 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
@@ -163,19 +167,22 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
 let draw = function () {
   requestAnimationFrame(draw)
 
-  let r = performance.now() / 2000
+  let t = performance.now() / 2000
 
   glm.mat4.identity(mv)
   glm.mat4.translate(mv, mv, [0, 0, -12])
-  glm.mat4.rotate(mv, mv, r, [1,0,1])
+  glm.mat4.rotate(mv, mv, t, [1,0,1])
   glm.mat4.scale(mv, mv, [0.15, 2.25, 1.5])
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb)
   gl.useProgram(prog)
-  gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
+
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
 
   gl.enableVertexAttribArray(vAttr)
+  gl.vertexAttribPointer(vAttr, 3, gl.BYTE, false, 0, 0)
+
   gl.uniformMatrix4fv(projUni, false, proj)
   gl.uniformMatrix4fv(mvUni, false, mv)
 
@@ -183,30 +190,18 @@ let draw = function () {
   gl.bindTexture(gl.TEXTURE_2D, frame)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
+
   gl.disableVertexAttribArray(vAttr)
 
-
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.useProgram(postProg)
-  gl.bindBuffer(gl.ARRAY_BUFFER, vBuff)
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuff)
-
-  gl.enableVertexAttribArray(vAttr)
-  gl.uniformMatrix4fv(projUni, false, proj)
-  gl.uniformMatrix4fv(mvUni, false, mv)
-
-  gl.activeTexture(gl.TEXTURE0)
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
-  gl.disableVertexAttribArray(vAttr)
-  /*gl.useProgram(postProg)
-  gl.enableVertexAttribArray(pvAttr)
-  gl.uniform1i(fUni, 0)
-  gl.activeTexture(gl.TEXTURE0)
-  gl.bindTexture(gl.TEXTURE_2D, frame)
-  //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.bindBuffer(gl.ARRAY_BUFFER, sBuff)
+  gl.vertexAttribPointer(pvAttr, 2, gl.UNSIGNED_BYTE, false, 0, 0)
+  gl.uniform1f(tUni, false, t)
+  gl.enableVertexAttribArray(pvAttr)
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null)
   gl.drawArrays(gl.TRIANGLES, 0, 3)
-  gl.disableVertexAttribArray(pvAttr)*/
+  gl.disableVertexAttribArray(pvAttr)
 }
 draw()
