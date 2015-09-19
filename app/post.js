@@ -3,16 +3,22 @@ let vertexShader = require('./post.glslv')
 
 class Post {
   constructor(gl, shader, o = {}) {
-    this.options = o
-    _.defaults(this.options, {
+    this.options = o = this
+    _.defaults(this, o, {
       width: 1,
       height: 1,
       mag: gl.NEAREST,
       min: gl.LINEAR,
       wrapS: gl.CLAMP_TO_EDGE,
-      wrapT: gl.CLAMP_TO_EDGE
+      wrapT: gl.CLAMP_TO_EDGE,
+      uniforms: {},
+      uniformLocations: {}
     })
     this.gl = gl
+    this.ext = {
+      depthTexture: gl.getExtension('WEBGL_depth_texture'),
+      drawBuffers: gl.getExtension('WEBGL_draw_buffers')
+    }
 
     this.fragment = shader
     this.vertex = gl.createShader(gl.VERTEX_SHADER)
@@ -30,16 +36,22 @@ class Post {
     this.positionAttrib = gl.getAttribLocation(this.program, 'position')
 
     this.frameUniform = gl.getUniformLocation(this.program, 'frame')
+    this.depthUniform = gl.getUniformLocation(this.program, 'depth')
+
     this.timeUniform = gl.getUniformLocation(this.program, 't')
 
     this.frame = gl.createFramebuffer()
-    this.depth = gl.createRenderbuffer()
+    this.depth = gl.createTexture()
     this.texture = gl.createTexture()
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.frame)
-    gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, o.mag)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, o.min)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, o.wrapS)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, o.wrapT)
 
+    gl.bindTexture(gl.TEXTURE_2D, this.depth)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, o.mag)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, o.min)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, o.wrapS)
@@ -48,7 +60,7 @@ class Post {
     this.resize(o.width, o.height)
 
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth)
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0)
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)
@@ -77,6 +89,10 @@ class Post {
     else {
       this.data = this.contextData.get(gl)
     }
+
+    for(let u in this.uniforms) {
+      this.uniformLocations[u] = gl.getUniformLocation(this.program, u)
+    }
   }
   bind() {
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frame)
@@ -88,7 +104,26 @@ class Post {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.data.vertexBuffer)
     gl.vertexAttribPointer(this.positionAttrib, 2, gl.UNSIGNED_BYTE, false, 0, 0)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
+    for(let u in this.uniforms) {
+      let uniform = this.uniforms[u]
+      if(uniform.value instanceof Array) {
+        switch(uniform.type) {
+          case 'f':
+          case 'i':
+            gl['uniform'+uniform.value.length+'v'+uniform.type](this.uniformLocations[u])
+        }
+      }
+    }
+
     gl.uniform1f(this.timeUniform, t)
+    gl.uniform1i(this.frameUniform, 0)
+    gl.uniform1i(this.depthUniform, 2)
+
+    gl.activeTexture(gl.TEXTURE0 + 0)
+    gl.bindTexture(gl.TEXTURE_2D, this.texture)
+    gl.activeTexture(gl.TEXTURE0 + 2)
+    gl.bindTexture(gl.TEXTURE_2D, this.depth)
+
     gl.enableVertexAttribArray(this.positionAttrib)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
     gl.disableVertexAttribArray(this.positionAttrib)
@@ -98,9 +133,8 @@ class Post {
     let o = this.options
     o.width = width
     o.height = height
-    gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth)
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, o.width, o.height)
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null)
+    gl.bindTexture(gl.TEXTURE_2D, this.depth)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, o.width, o.height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, o.width, o.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
     gl.bindTexture(gl.TEXTURE_2D, null)
