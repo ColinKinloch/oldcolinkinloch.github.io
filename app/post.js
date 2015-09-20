@@ -1,9 +1,10 @@
 let _ = require('lodash')
+let glm = require('gl-matrix')
+
 let vertexShader = require('./post.glslv')
 
 class Post {
   constructor(gl, shader, o = {}) {
-    this.options = o = this
     _.defaults(this, o, {
       width: 1,
       height: 1,
@@ -46,18 +47,18 @@ class Post {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.frame)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, o.mag)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, o.min)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, o.wrapS)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, o.wrapT)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.mag)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.min)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.wrapS)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.wrapT)
 
     gl.bindTexture(gl.TEXTURE_2D, this.depth)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, o.mag)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, o.min)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, o.wrapS)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, o.wrapT)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.mag)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.min)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.wrapS)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.wrapT)
 
-    this.resize(o.width, o.height)
+    this.resize(this.width, this.height)
 
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0)
@@ -130,13 +131,12 @@ class Post {
     gl.bindTexture(gl.TEXTURE_2D, null)
   }
   resize(width, height) {
-    let o = this.options
-    o.width = width
-    o.height = height
+    this.width = width
+    this.height = height
     gl.bindTexture(gl.TEXTURE_2D, this.depth)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, o.width, o.height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, this.width, this.height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, o.width, o.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
     gl.bindTexture(gl.TEXTURE_2D, null)
   }
 }

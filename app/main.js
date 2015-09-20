@@ -16,7 +16,7 @@ let glopts = {
   antialias: false,
   alpha: true
 }
-let gl = el.getContext('webgl', glopts) || el.getContext('experimental-webgl', glopts)
+let gl = el.getContext('webgl2', glopts) || el.getContext('experimental-webgl2', glopts)
 gl.enable(gl.DEPTH_TEST)
 gl.clearColor(0,0,0,0)
 gl.clearDepth(1)
@@ -28,10 +28,22 @@ let shad = function(type, source) {
   gl.compileShader(shader)
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     console.error(gl.getShaderInfoLog(shader))
+    let s = source.split('\n')
+    source = ''
+    let i = 0
+    for(let l of s) {
+      i++
+      source += `${i}:${l}\n`
+    }
+    console.error(source)
     return null
   }
   return shader
 }
+
+let ditherFragSrc = require('./dithering.glslf')
+let ditherFrag = shad(gl.FRAGMENT_SHADER, ditherFragSrc)
+let dither = new Post(gl, ditherFrag)
 
 let fragPost = require('./deres.glslf')
 let fragPostShad = shad(gl.FRAGMENT_SHADER, fragPost)
@@ -46,9 +58,10 @@ let resize = function (w, h)
   el.width = w
   el.height = h
   gl.viewport(0, 0, w, h)
-  glm.mat4.perspective(proj, 45, w / h, 3, 10)
+  glm.mat4.perspective(proj, 45, w / h, 3, 11)
   //glm.mat4.ortho(proj, -5, 5, -5, 5, -10, 10)
   deres.resize(w,h)
+  dither.resize(w,h)
 }
 
 window.addEventListener('resize', function(e) {
@@ -162,13 +175,13 @@ let draw = function () {
   let t3 = 1 / Math.cos(t * 0.3)
 
   glm.mat4.identity(mv)
-  glm.mat4.translate(mv, mv, [0, 0, -6])
-  glm.mat4.rotate(mv, mv, t * 10, [2,5,3])
-  glm.mat4.scale(mv, mv, [0.5, 2.25, 1.5])
+  glm.mat4.translate(mv, mv, [0, 0, -8])
+  glm.mat4.rotate(mv, mv, t * 10, [0.5,Math.tan(t) * 3,Math.sin(t)])
+  glm.mat4.scale(mv, mv, [0.25, 3, 1.5])
   normal = glm.mat3.create()
   glm.mat3.normalFromMat4(normal, mv)
 
-  deres.bind()
+  dither.bind()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
   gl.useProgram(prog)
@@ -192,7 +205,7 @@ let draw = function () {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-  deres.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
+  dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 }
 
 draw()
