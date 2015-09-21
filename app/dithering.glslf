@@ -13,7 +13,7 @@ out vec4 fragmentColour;
 void main() {
   ivec2 c = ivec2(mod(gl_FragCoord.xy, 4.0));
   float threshold = 1.0;
-  vec4 pixel = texture(depth, screenCoords) * texture(frame, screenCoords);
+  vec4 pixel = texture(depth, screenCoords).r * texture(frame, screenCoords);
   vec4 dithered = pixel + pixel * bayerer(8.0, gl_FragCoord.xy);
   fragmentColour = deres(dithered, 3.0);
 }
