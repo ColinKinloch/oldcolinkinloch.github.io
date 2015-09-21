@@ -1,5 +1,8 @@
 document.querySelector('#year').innerHTML = new Date().getYear()
 
+let Q = require('q')
+require('q-xhr')(XMLHttpRequest, Q)
+
 let glm = require('gl-matrix')
 
 let Post = require('./post.js')
@@ -207,5 +210,9 @@ let draw = function () {
 
   dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 }
+
+let modelReq = Q.xhr.get('hello.gltf').then(function(res) {
+  console.log(res.data)
+})
 
 draw()
