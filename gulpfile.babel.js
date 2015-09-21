@@ -44,8 +44,10 @@ gulp.task('webpack', ['jade', 'sass'], function(cb) {
   })
 })
 
+let port = 8080
+
 gulp.task('serve', ['server'], function() {
-  require('opn')('http://localhost:9000')
+  require('opn')('http://localhost:'+port)
 })
 gulp.task('server', ['jade', 'sass'], function() {
   let express = require('express')
@@ -60,7 +62,7 @@ gulp.task('server', ['jade', 'sass'], function() {
     }
   }))
   .use(express.static('app'))
-  let server = app.listen(9000, function() {
+  let server = app.listen(port, function() {
     let host = server.address().address
     let port = server.address().port
     console.log(`Listening at http://${host}:${port}`)
