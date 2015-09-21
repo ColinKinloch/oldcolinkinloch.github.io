@@ -10,8 +10,8 @@ const int b[64] = int[64](
 );
 const float m = 1. / 65.;
 
-float bayerer(in int order, in ivec2 coord) {
-  ivec2 c = mod(coord, order);
+float bayerer(in float order, in vec2 coord) {
+  ivec2 c = ivec2(mod(gl_FragCoord.xy, order));
   return b[8 * c.y + c.x] * m;
 }
 float bayerer(in int order, in vec2 coord) {

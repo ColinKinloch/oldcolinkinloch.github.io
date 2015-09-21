@@ -1,3 +1,4 @@
+#version 300 es
 precision mediump float;
 
 #pragma glslify: deres = require(./deres.glsl)
@@ -6,12 +7,13 @@ precision mediump float;
 uniform sampler2D frame;
 uniform sampler2D depth;
 
-varying vec2 screenCoords;
+in vec2 screenCoords;
+out vec4 fragmentColour;
 
 void main() {
   ivec2 c = ivec2(mod(gl_FragCoord.xy, 4.0));
   float threshold = 1.0;
-  vec4 pixel = texture2D(depth, screenCoords) * texture2D(frame, screenCoords);
-  vec4 dithered = pixel + pixel * bayerer(8, gl_FragCoord.xy);
-  gl_FragColor = deres(dithered, 3.0);
+  vec4 pixel = texture(depth, screenCoords) * texture(frame, screenCoords);
+  vec4 dithered = pixel + pixel * bayerer(8.0, gl_FragCoord.xy);
+  fragmentColour = deres(dithered, 3.0);
 }
