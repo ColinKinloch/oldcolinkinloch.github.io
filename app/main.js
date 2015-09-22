@@ -211,8 +211,16 @@ let draw = function () {
   dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 }
 
-let modelReq = Q.xhr.get('hello.gltf').then(function(res) {
-  console.log(res.data)
+let binReq = Q.xhr.get('SuperMurdoch.bin', {
+  responseType: 'arraybuffer'
+})
+let gltfReq = Q.xhr.get('SuperMurdoch.gltf', {
+  responseType: 'json'
+})
+let modelReq = Q.all([gltfReq, binReq]).then(function(res) {
+  let gltf = res[0].data
+  let bin = res[1].data
+  console.log(gltf, bin)
 })
 
 draw()
