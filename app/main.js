@@ -220,6 +220,14 @@ let gltfReq = Q.xhr.get('SuperMurdoch.gltf', {
 let modelReq = Q.all([gltfReq, binReq]).then(function(res) {
   let gltf = res[0].data
   let bin = res[1].data
+  for(let mid in gltf.meshes) {
+    let mesh = gltf.meshes[mid]
+    for(let pid in mesh.primitives) {
+      let primitive = mesh.primitives[pid]
+      let accessor = gltf.accessors[primitive.indices]
+    }
+  }
+
   console.log(gltf, bin)
 })
 
