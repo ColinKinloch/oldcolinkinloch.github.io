@@ -5,6 +5,8 @@ require('q-xhr')(XMLHttpRequest, Q)
 
 let glm = require('gl-matrix')
 
+let glTFParser = require('glTF-node-module/loaders/glTF-parser.js').glTFParser
+
 let Post = require('./post.js')
 
 let vert = require('./main.glslv')
@@ -170,6 +172,17 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
   20, 22, 23
 ]), gl.STATIC_DRAW)
 
+let f = './box.gltf'
+
+let parser = glTFParser.initWithPath(f)
+let ctx = {
+  rootObj: {},
+  callback: function(obj) {
+    console.log('hi', obj)
+  }
+}
+parser.load(ctx)
+
 let draw = function () {
   requestAnimationFrame(draw)
 
@@ -210,25 +223,5 @@ let draw = function () {
 
   dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 }
-
-let binReq = Q.xhr.get('SuperMurdoch.bin', {
-  responseType: 'arraybuffer'
-})
-let gltfReq = Q.xhr.get('SuperMurdoch.gltf', {
-  responseType: 'json'
-})
-let modelReq = Q.all([gltfReq, binReq]).then(function(res) {
-  let gltf = res[0].data
-  let bin = res[1].data
-  for(let mid in gltf.meshes) {
-    let mesh = gltf.meshes[mid]
-    for(let pid in mesh.primitives) {
-      let primitive = mesh.primitives[pid]
-      let accessor = gltf.accessors[primitive.indices]
-    }
-  }
-
-  console.log(gltf, bin)
-})
 
 draw()
