@@ -3,13 +3,13 @@ let babelrc = require('./babelrc.js')
 let config = {
   context: __dirname + '/app',
   entry: {
-    //game: './game',
     main: './main.js'
   },
   output: {
     path: __dirname + '/dist',
     filename: '[name].js'
   },
+  devtool: 'eval-source-map',
   module: {
     loaders: [
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader', query: babelrc },

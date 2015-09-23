@@ -1,2 +1,3 @@
 module.exports = {
+  sourceMaps: true
 }
