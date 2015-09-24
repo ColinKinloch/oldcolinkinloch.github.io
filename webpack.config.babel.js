@@ -7,7 +7,8 @@ let config = {
   },
   output: {
     path: __dirname + '/dist',
-    filename: '[name].js'
+    filename: '[name].js',
+    pathinfo: true
   },
   devtool: 'eval-source-map',
   module: {
