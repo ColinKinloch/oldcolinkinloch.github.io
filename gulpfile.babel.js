@@ -2,49 +2,49 @@ import _ from 'lodash'
 
 import gulp from 'gulp'
 import eslint from 'gulp-eslint'
+import livereload from 'gulp-livereload'
 
-let webpack = require('webpack')
-let webpackDevMiddleware = require('webpack-dev-middleware')
-let webpackConfig = require('./webpack.config.babel.js')
+import webpack from 'webpack'
+import webpackDevMiddleware from 'webpack-dev-middleware'
+import webpackConfig from './webpack.config.babel.js'
 let webpackDevConfig = _.extend(webpackConfig, {
   debug: true,
   devtool: 'eval'
 })
 
-gulp.task('default', ['build'], function() {
+gulp.task('default', ['build'], () => {
 })
-gulp.task('build', ['webpack'], function() {
-  //TODO Do this better
+gulp.task('build', ['webpack'], () => {
+  // TODO Do this better
   gulp.src([
     'app/CNAME',
     '.tmp/**/*'
   ])
   .pipe(gulp.dest('dist'))
-
 })
 
-gulp.task('jade', function() {
+gulp.task('jade', () => {
   let jade = require('gulp-jade')
   gulp.src('./app/**/*.jade')
   .pipe(jade({}))
   .pipe(gulp.dest('.tmp'))
   .pipe(livereload())
 })
-gulp.task('sass', function() {
+gulp.task('sass', () => {
   let sass = require('gulp-sass')
   gulp.src('./app/**/*.scss')
   .pipe(sass())
   .pipe(gulp.dest('.tmp'))
   .pipe(livereload())
 })
-
-gulp.task('webpack', ['jade', 'sass'], function(cb) {
-  webpack(webpackConfig, function(err, stats) {
+gulp.task('webpack', ['eslint'], (cb) => {
+  webpack(webpackConfig, function (err, stats) {
+    console.error(err)
     cb()
   })
 })
 
-gulp.task('lint', () => {
+gulp.task('eslint', () => {
   return gulp.src(['./app/**/*.js'])
     .pipe(eslint())
     .pipe(eslint.format())
@@ -53,10 +53,14 @@ gulp.task('lint', () => {
 
 let port = 8080
 
-gulp.task('serve', ['server'], function() {
-  require('opn')('http://localhost:'+port)
+gulp.task('serve', ['server'], () => {
+  gulp.watch('./app/**/*.js', ['webpack'])
+  gulp.watch('./app/**/*.jade', ['jade'])
+  gulp.watch('./app/**/*.scss', ['sass'])
+  livereload.listen()
+  require('opn')(`http://localhost:${port}`)
 })
-gulp.task('server', ['jade', 'sass'], function() {
+gulp.task('server', ['jade', 'sass'], () => {
   let express = require('express')
   let devCompiler = webpack(webpackDevConfig)
   let app = express()
@@ -74,8 +78,5 @@ gulp.task('server', ['jade', 'sass'], function() {
     let port = server.address().port
     console.log(`Listening at http://${host}:${port}`)
   })
-  livereload.listen()
   devCompiler.plugin('done', state => livereload.reload())
-  gulp.watch('./app/**/*.jade', ['jade'])
-  gulp.watch('./app/**/*.scss', ['sass'])
 })
