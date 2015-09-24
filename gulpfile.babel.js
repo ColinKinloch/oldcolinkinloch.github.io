@@ -1,7 +1,7 @@
-let gulp = require('gulp')
-let _ = require('lodash')
+import _ from 'lodash'
 
-let livereload = require('gulp-livereload')
+import gulp from 'gulp'
+import eslint from 'gulp-eslint'
 
 let webpack = require('webpack')
 let webpackDevMiddleware = require('webpack-dev-middleware')
@@ -42,6 +42,13 @@ gulp.task('webpack', ['jade', 'sass'], function(cb) {
   webpack(webpackConfig, function(err, stats) {
     cb()
   })
+})
+
+gulp.task('lint', () => {
+  return gulp.src(['./app/**/*.js'])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError())
 })
 
 let port = 8080

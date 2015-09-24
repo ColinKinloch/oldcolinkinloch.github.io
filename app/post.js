@@ -1,10 +1,9 @@
-let _ = require('lodash')
-let glm = require('gl-matrix')
+import _ from 'lodash'
 
-let vertexShader = require('./post.glslv')
+import vertexShader from './post.glslv'
 
 class Post {
-  constructor(gl, shader, o = {}) {
+  constructor (gl, shader, o = {}) {
     _.defaults(this, o, {
       width: 1,
       height: 1,
@@ -25,7 +24,7 @@ class Post {
     this.vertex = gl.createShader(gl.VERTEX_SHADER)
     gl.shaderSource(this.vertex, vertexShader)
     gl.compileShader(this.vertex)
-    if(!gl.getShaderParameter(this.vertex, gl.COMPILE_STATUS)) {
+    if (!gl.getShaderParameter(this.vertex, gl.COMPILE_STATUS)) {
       console.error(gl.getShaderInfoLog(this.vertex))
       return null
     }
@@ -67,12 +66,12 @@ class Post {
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)
     gl.bindTexture(gl.TEXTURE_2D, null)
 
-    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
       console.error('framebuffer incomplete')
       return null
     }
 
-    if(!this.contextData.has(gl)) {
+    if (!this.contextData.has(gl)) {
       let vb = gl.createBuffer()
       gl.bindBuffer(gl.ARRAY_BUFFER, vb)
       gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
@@ -85,33 +84,32 @@ class Post {
         vertexBuffer: vb
       }
       this.contextData.set(gl, this.data)
-
-    }
-    else {
+    } else {
       this.data = this.contextData.get(gl)
     }
 
-    for(let u in this.uniforms) {
+    for (let u in this.uniforms) {
       this.uniformLocations[u] = gl.getUniformLocation(this.program, u)
     }
   }
-  bind() {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frame)
 
+  bind () {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frame)
   }
-  draw(t = 0) {
+
+  draw (t = 0) {
     let gl = this.gl
     gl.useProgram(this.program)
     gl.bindBuffer(gl.ARRAY_BUFFER, this.data.vertexBuffer)
     gl.vertexAttribPointer(this.positionAttrib, 2, gl.UNSIGNED_BYTE, false, 0, 0)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    for(let u in this.uniforms) {
+    for (let u in this.uniforms) {
       let uniform = this.uniforms[u]
-      if(uniform.value instanceof Array) {
-        switch(uniform.type) {
+      if (uniform.value instanceof Array) {
+        switch (uniform.type) {
           case 'f':
           case 'i':
-            gl['uniform'+uniform.value.length+'v'+uniform.type](this.uniformLocations[u])
+            gl['uniform' + uniform.value.length + 'v' + uniform.type](this.uniformLocations[u])
         }
       }
     }
@@ -130,7 +128,9 @@ class Post {
     gl.disableVertexAttribArray(this.positionAttrib)
     gl.bindTexture(gl.TEXTURE_2D, null)
   }
-  resize(width, height) {
+
+  resize (width, height) {
+    let gl = this.gl
     this.width = width
     this.height = height
     gl.bindTexture(gl.TEXTURE_2D, this.depth)
