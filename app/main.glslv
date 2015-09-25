@@ -1,4 +1,7 @@
 #version 300 es
+
+#pragma glslify: deres = require(./deres.glsl)
+
 in vec3 position;
 in vec3 normal;
 
@@ -10,5 +13,5 @@ uniform mat4 projectionMatrix;
 
 void main(void) {
   vNormal = normalize(normalMatrix * normal);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * deres(modelViewMatrix * vec4(position, 1.0), 18.0);
 }

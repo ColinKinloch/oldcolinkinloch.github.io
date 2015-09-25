@@ -1,0 +1,3 @@
+[submodule "lib/glTF"]
+	path = lib/glTF
+	url = https://github.com/KhronosGroup/glTF.git#v0.8

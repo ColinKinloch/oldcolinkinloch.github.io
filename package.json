@@ -31,7 +31,6 @@
     "gl-matrix": "^2.3.1",
     "lodash": "~3.10.1",
     "q": "~1.4.1",
-    "q-xhr": "~1.0.0",
-    "glTF": "git://github.com/KhronosGroup/glTF#v0.8"
+    "q-xhr": "~1.0.0"
   }
 }
