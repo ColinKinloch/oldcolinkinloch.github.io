@@ -1,12 +1,13 @@
-let babelrc = require('./babelrc.js')
+let babelrc = require('./babelConfig.js')
 
 let config = {
-  context: __dirname + '/app',
+  context: `${__dirname}/app`,
   entry: {
     main: './main.js'
   },
   output: {
-    path: __dirname + '/dist',
+    path: `${__dirname}/dist`,
+    pubilcPath: 'app',
     filename: '[name].js',
     pathinfo: true
   },

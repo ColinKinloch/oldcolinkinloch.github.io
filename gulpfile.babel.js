@@ -4,13 +4,7 @@ import gulp from 'gulp'
 import eslint from 'gulp-eslint'
 import livereload from 'gulp-livereload'
 
-import webpack from 'webpack'
-import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackConfig from './webpack.config.babel.js'
-let webpackDevConfig = _.extend(webpackConfig, {
-  debug: true,
-  devtool: 'eval'
-})
 
 gulp.task('default', ['build'], () => {
 })
@@ -38,7 +32,7 @@ gulp.task('sass', () => {
   .pipe(livereload())
 })
 gulp.task('webpack', ['eslint'], (cb) => {
-  webpack(webpackConfig, function (err, stats) {
+  webpack(webpackConfig, (err, stats) => {
     console.error(err)
     cb()
   })
@@ -73,7 +67,7 @@ gulp.task('server', ['jade', 'sass'], () => {
     }
   }))
   .use(express.static('app'))
-  let server = app.listen(port, function() {
+  let server = app.listen(port, () => {
     let host = server.address().address
     let port = server.address().port
     console.log(`Listening at http://${host}:${port}`)
