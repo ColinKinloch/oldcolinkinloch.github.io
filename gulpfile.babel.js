@@ -56,6 +56,11 @@ gulp.task('serve', ['server'], () => {
 })
 gulp.task('server', ['jade', 'sass'], () => {
   let express = require('express')
+  let webpack = require('webpack')
+  let webpackDevMiddleware = require('webpack-dev-middleware')
+  let webpackDevConfig = _.extend(webpackConfig, {
+    stats: { colors: true }
+  })
   let devCompiler = webpack(webpackDevConfig)
   let app = express()
   .use(express.static('.tmp'))

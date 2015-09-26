@@ -21,7 +21,11 @@ let glopts = {
   antialias: false,
   alpha: true
 }
-let gl = el.getContext('webgl2', glopts) || el.getContext('experimental-webgl2', glopts)
+let gl =
+el.getContext('webgl2', glopts) ||
+el.getContext('experimental-webgl2', glopts) ||
+el.getContext('webgl', glopts) ||
+el.getContext('experimental-webgl', glopts)
 gl.enable(gl.DEPTH_TEST)
 gl.clearColor(0, 0, 0, 0)
 gl.clearDepth(1)
