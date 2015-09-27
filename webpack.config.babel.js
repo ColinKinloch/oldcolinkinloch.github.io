@@ -3,7 +3,7 @@ let babelrc = require('./babelConfig.js')
 let config = {
   context: `${__dirname}/app`,
   entry: {
-    main: './main.js'
+    index: './main.js'
   },
   output: {
     path: `${__dirname}/dist`,
@@ -11,7 +11,7 @@ let config = {
     filename: '[name].js',
     pathinfo: true
   },
-  devtool: 'eval-source-map',
+  devtool: '#eval-source-map',
   module: {
     loaders: [
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader', query: babelrc },
