@@ -18,6 +18,10 @@ let config = {
       { test: /\.(frag|vect|glsl[vf]?)$/, exclude: /node_modules/, loader: 'raw' },
       { test: /\.(frag|vect|glsl[vf]?)$/, exclude: /node_modules/, loader: 'glslify' }
     ]
+  },
+  devServer: {
+    contentBase: '.tmp',
+    stats: { colors: true }
   }
 
 }
