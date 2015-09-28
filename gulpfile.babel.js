@@ -57,7 +57,7 @@ let port = 8080
 let host = 'localhost'
 
 gulp.task('serve', () => {
-  runSequence(['jade', 'sass', 'copy'], 'webpack-server-server', () => {
+  runSequence(['jade', 'sass', 'copy'], 'server', () => {
     gulp.watch('./app/**/*.jade', ['jade'])
     gulp.watch('./app/**/*.scss', ['sass'])
     // require('opn')(`http://localhost:${port}`)
@@ -65,18 +65,26 @@ gulp.task('serve', () => {
 })
 
 gulp.task('server', () => {
+  let Express = require('express')
   let webpack = require('webpack')
-  let WebpackDevServer = require('webpack-dev-server')
+  let webpackDevMiddleware = require('webpack-dev-middleware')
   let webpackDevConfig = _.extend(webpackConfig, {
-    stats: { colors: true }
   })
   let devCompiler = webpack(webpackDevConfig)
   devCompiler.plugin('done', state => livereload.reload())
-  let devServer = new WebpackDevServer(devCompiler, {
-    contentBase: 'dist',
+  let devServer = webpackDevMiddleware(devCompiler, {
     stats: { colors: true }
   })
+  let app = new Express()
+  app.use(Express.static('dist'))
+  app.use(devServer)
+  app.use(Express.static('app'))
+  app.listen(port, host, () => {
+    util.log('Listening at', util.colors.magenta(`http://${host}:${port}`))
+  })
+  /*
   devServer.listen(port, host, () => {
     util.log('Listening at', util.colors.magenta(`http://${host}:${port}`))
   })
+  */
 })

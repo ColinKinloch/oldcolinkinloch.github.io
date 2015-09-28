@@ -1,4 +1,5 @@
-let babelrc = require('./babelConfig.js')
+import webpack from 'webpack'
+import babelrc from './babelConfig.js'
 
 let config = {
   context: `${__dirname}/app`,
@@ -11,7 +12,7 @@ let config = {
     filename: '[name].js',
     pathinfo: true
   },
-  devtool: '#eval-source-map',
+  // devtool: 'source-map',
   module: {
     loaders: [
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader', query: babelrc },
@@ -19,6 +20,9 @@ let config = {
       { test: /\.(frag|vect|glsl[vf]?)$/, exclude: /node_modules/, loader: 'glslify' }
     ]
   },
+  plugins: [
+    new webpack.SourceMapDevToolPlugin()
+  ]
 }
 
 module.exports = config
