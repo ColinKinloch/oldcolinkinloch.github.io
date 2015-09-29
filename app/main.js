@@ -51,7 +51,15 @@ let shad = function (type, source) {
   return shader
 }
 
-let ditherFragSrc = require('./dithering.glslf')
+let hBlurFragSrc = require('./blurHorizontal.glslf')
+let hBlurFrag = shad(gl.FRAGMENT_SHADER, hBlurFragSrc)
+let hBlur = new Post(gl, hBlurFrag)
+
+let vBlurFragSrc = require('./blurHorizontal.glslf')
+let vBlurFrag = shad(gl.FRAGMENT_SHADER, vBlurFragSrc)
+let vBlur = new Post(gl, vBlurFrag)
+
+let ditherFragSrc = require('./blurHorizontal.glslf')
 let ditherFrag = shad(gl.FRAGMENT_SHADER, ditherFragSrc)
 let dither = new Post(gl, ditherFrag)
 
@@ -71,6 +79,8 @@ let resize = function (w, h) {
   // glm.mat4.ortho(proj, -5, 5, -5, 5, -10, 10)
   deres.resize(w, h)
   dither.resize(w, h)
+  hBlur.resize(w, h)
+  vBlur.resize(w, h)
 }
 
 window.addEventListener('resize', function (e) {
@@ -201,7 +211,7 @@ let draw = function () {
   normal = glm.mat3.create()
   glm.mat3.normalFromMat4(normal, mv)
 
-  dither.bind()
+  hBlur.bind()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
   gl.useProgram(prog)
@@ -222,9 +232,16 @@ let draw = function () {
   gl.disableVertexAttribArray(vAttr)
   gl.disableVertexAttribArray(nAttr)
 
+  vBlur.bind()
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  hBlur.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
+
+  dither.bind()
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  vBlur.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
+
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
   dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 }
 
