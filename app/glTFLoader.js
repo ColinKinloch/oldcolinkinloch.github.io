@@ -1,75 +1,131 @@
 import glTFParser from '../lib/glTF/loaders/glTF-parser.js'
-import Q from 'q'
-require('q-xhr')(XMLHttpRequest, Q)
 
 let glTFLoader = Object.create(glTFParser.glTFParser, {
   handleLoadCompleted: {
-    value: () => {
-      console.log('Loaded glTF!')
+    value: (success) => {
+      if (success) {
+        console.log('Loaded glTF!')
+      } else {
+        console.error('Failed to load glTF!')
+      }
     }
   },
   handleBuffer: {
-    value: (id, des, data) => {
-      Q.xhr.get(des.uri, {
-        responseType: 'arraybuffer'
-      }).then((res) => {
-        data.object.buffer = res.data
+    value: (id, desc, data) => {
+      let req = new Request(desc.uri)
+      let fetchPromise = fetch(req)
+      data.promises.push(fetchPromise)
+      fetchPromise.then((res) => {
+        let bufferPromise = res.arrayBuffer()
+        data.promises.push(bufferPromise)
+        console.log(data)
+        bufferPromise.then((buffer) => {
+          data.buffers.push(buffer)
+        })
       })
-      console.log(`Buffer "${id}":`, des)
+      console.log(`Buffer "${id}":`, desc)
       return true
     }
   },
-  handleImage: {
-    value: (id, des, data) => {
-      console.log(`Image "${id}":`, des)
+  handleBufferView: {
+    value: (id, desc, data) => {
+      console.log(`BufferView "${id}"`, desc)
       return true
     }
   },
   handleShader: {
-    value: (id, des, data) => {
-      console.log(`Shader "${id}":`, des)
+    value: (id, desc, data) => {
+      console.log(`Shader "${id}":`, desc)
+      return true
+    }
+  },
+  handleProgram: {
+    value: (id, desc, data) => {
+      console.log(`Shader "${id}":`, desc)
       return true
     }
   },
   handleTechnique: {
-    value: (id, des, data) => {
-      console.log(`Technique"${id}":`, des)
+    value: (id, desc, data) => {
+      console.log(`Technique"${id}":`, desc)
       return true
     }
   },
   handleMaterial: {
-    value: (id, des, data) => {
-      console.log(`Material "${id}":`, des)
-      return true
-    }
-  },
-  handleLight: {
-    value: (id, des, data) => {
-      console.log(`Light "${id}":`, des)
+    value: (id, desc, data) => {
+      console.log(`Material "${id}":`, desc)
       return true
     }
   },
   handleMesh: {
-    value: (id, des, data) => {
-      console.log(`Mesh "${id}":`, des)
+    value: (id, desc, data) => {
+      console.log(`Mesh "${id}":`, desc)
       return true
     }
   },
   handleCamera: {
-    value: (id, des, data) => {
-      console.log(`Camera "${id}":`, des)
+    value: (id, desc, data) => {
+      console.log(`Camera "${id}":`, desc)
       return true
     }
   },
-  handleScene: {
-    value: (id, des, data) => {
-      console.log(`Scene "${id}":`, des)
+  handleLight: {
+    value: (id, desc, data) => {
+      console.log(`Light "${id}":`, desc)
       return true
     }
   },
   handleNode: {
-    value: (id, des, data) => {
-      console.log(`Node "${id}":`, des)
+    value: (id, desc, data) => {
+      console.log(`Node "${id}":`, desc)
+      return true
+    }
+  },
+  handleScene: {
+    value: (id, desc, data) => {
+      console.log(`Scene "${id}":`, desc)
+      return true
+    }
+  },
+  handleImage: {
+    value: (id, desc, data) => {
+      console.log(`Image "${id}":`, desc)
+      return true
+    }
+  },
+  handleAnimation: {
+    value: (id, desc, data) => {
+      console.log(`Animation "${id}":`, desc)
+      return true
+    }
+  },
+  handleAccessor: {
+    value: (id, desc, data) => {
+      console.log(`Accessor "${id}"`, desc)
+      return true
+    }
+  },
+  handleSkin: {
+    value: (id, desc, data) => {
+      console.log(`Skin "${id}"`, desc)
+      return true
+    }
+  },
+  handleSampler: {
+    value: (id, desc, data) => {
+      console.log(`Sampler "${id}"`, desc)
+      return true
+    }
+  },
+  handleTexture: {
+    value: (id, desc, data) => {
+      console.log(`Texture "${id}"`, desc)
+      return true
+    }
+  },
+  handleVideo: {
+    value: (id, desc, data) => {
+      console.log(`Video "${id}"`, desc)
       return true
     }
   }

@@ -7,6 +7,7 @@ import glm from 'gl-matrix'
 
 import glTFLoader from './glTFLoader.js'
 
+import Entity from './entity.js'
 import Post from './post.js'
 
 import vert from './main.glslv'
@@ -176,14 +177,7 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
 
 let f = './box.gltf'
 
-let object = {}
-
-let parser = Object.create(glTFLoader)
-parser.initWithPath(f)
-parser.load({
-  gl: gl,
-  object: object
-})
+let entity = Entity.fromGLTF(f)
 
 /* let ctx = {
   rootObj: {},
