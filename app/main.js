@@ -5,7 +5,7 @@ require('q-xhr')(XMLHttpRequest, Q)
 
 import glm from 'gl-matrix'
 
-// import glTFParser from 'glTF-node-module/loaders/glTF-parser.js'
+import glTFLoader from './glTFLoader.js'
 
 import Post from './post.js'
 
@@ -174,18 +174,24 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
   20, 22, 23
 ]), gl.STATIC_DRAW)
 
-/*
 let f = './box.gltf'
 
-let parser = glTFParser.glTFParser.initWithPath(f)
-let ctx = {
+let object = {}
+
+let parser = Object.create(glTFLoader)
+parser.initWithPath(f)
+parser.load({
+  gl: gl,
+  object: object
+})
+
+/* let ctx = {
   rootObj: {},
   callback: function (obj) {
     console.log('hi', obj)
   }
 }
-parser.load(ctx)
-*/
+parser.load(ctx) */
 
 let draw = function () {
   requestAnimationFrame(draw)

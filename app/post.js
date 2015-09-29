@@ -98,7 +98,6 @@ class Post {
   }
 
   draw (t = 0) {
-    console.log('hi there')
     let gl = this.gl
     gl.useProgram(this.program)
     gl.bindBuffer(gl.ARRAY_BUFFER, this.data.vertexBuffer)
