@@ -7,7 +7,7 @@ const float e = 2.71828182845;
 #define S(sigma) (2. * pow(sigma, 2.))
 //#define G(x,y,s) (1. / (pi * s) * pow(e, -((pow(x, 2.) + pow(y, 2.)) / s)))
 #define G(x,y,s) 1. / (pi * s) * pow(e, -((x*x + y*y) / s))
-const float s = S(1.);
+const float s = S(0.85);
 const int v = 3;
 const int u = int(v + 1);
 
