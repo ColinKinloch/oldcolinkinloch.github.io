@@ -182,7 +182,11 @@ gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
 
 let f = './box.gltf'
 
-let entity = Entity.fromGLTF(f)
+gl.useProgram(prog)
+let entity = Entity.fromGLTF(f, {
+  gl: gl,
+  material: prog
+})
 
 /* let ctx = {
   rootObj: {},
@@ -226,6 +230,8 @@ let draw = function () {
   gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
   gl.disableVertexAttribArray(vAttr)
   gl.disableVertexAttribArray(nAttr)
+
+  entity.draw()
 
   blur.bind()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
