@@ -15,10 +15,6 @@ class Post {
       uniformLocations: {}
     })
     this.gl = gl
-    this.ext = {
-      depthTexture: gl.getExtension('WEBGL_depth_texture'),
-      drawBuffers: gl.getExtension('WEBGL_draw_buffers')
-    }
 
     this.fragment = shader
     this.vertex = gl.createShader(gl.VERTEX_SHADER)
