@@ -116,7 +116,7 @@ class Entity {
   }
   static fromGLTF (path, options) {
     let gl = options.gl
-    let entity = new Entity(gl, prog)
+    let entity = new Entity(gl, options.material)
     let promises = []
     let loader = Object.create(glTFParser.glTFParser, {
       handleBuffer: {
