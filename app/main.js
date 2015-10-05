@@ -3,6 +3,7 @@ document.querySelector('#year').innerHTML = new Date().getYear()
 import Q from 'q'
 require('q-xhr')(XMLHttpRequest, Q)
 
+import _ from 'lodash'
 import glm from 'gl-matrix'
 
 import glTFLoader from './glTFLoader.js'
@@ -49,6 +50,79 @@ let shad = function (type, source) {
   return shader
 }
 
+let buffFragSrc = require('./bufferDraw.glslf')
+let buffFrag = shad(gl.FRAGMENT_SHADER, buffFragSrc)
+
+if (!gl.getShaderParameter(buff, gl.COMPILE_STATUS)) {
+  console.error(gl.getShaderInfoLog(buff))
+}
+
+let buff = gl.createProgram()
+gl.attachShader(buff, buffFrag)
+gl.linkProgram(buff)
+
+let color = [
+  gl.createTexture(),
+  gl.createTexture(),
+  gl.createTexture()
+]
+let colorAttachment = [
+  gl.COLOR_ATTACHMENT0,
+  gl.COLOR_ATTACHMENT1,
+  gl.COLOR_ATTACHMENT2,
+  gl.COLOR_ATTACHMENT3,
+  gl.COLOR_ATTACHMENT4,
+  gl.COLOR_ATTACHMENT5,
+  gl.COLOR_ATTACHMENT6,
+  gl.COLOR_ATTACHMENT7,
+  gl.COLOR_ATTACHMENT8,
+  gl.COLOR_ATTACHMENT9,
+  gl.COLOR_ATTACHMENT10,
+  gl.COLOR_ATTACHMENT11,
+  gl.COLOR_ATTACHMENT12,
+  gl.COLOR_ATTACHMENT13,
+  gl.COLOR_ATTACHMENT14,
+  gl.COLOR_ATTACHMENT15
+]
+/* let drawBuffer = [
+  gl.DRAW_BUFFER0,
+  gl.DRAW_BUFFER1,
+  gl.DRAW_BUFFER2,
+  gl.DRAW_BUFFER3,
+  gl.DRAW_BUFFER4,
+  gl.DRAW_BUFFER5,
+  gl.DRAW_BUFFER6,
+  gl.DRAW_BUFFER7,
+  gl.DRAW_BUFFER8,
+  gl.DRAW_BUFFER9,
+  gl.DRAW_BUFFER10,
+  gl.DRAW_BUFFER11,
+  gl.DRAW_BUFFER12,
+  gl.DRAW_BUFFER13,
+  gl.DRAW_BUFFER14,
+  gl.DRAW_BUFFER15
+] */
+
+for (let c of color) {
+  gl.bindTexture(gl.TEXTURE_2D, c)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+}
+
+let frame = gl.createFramebuffer()
+gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
+for (let i in color) {
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment[i], gl.TEXTURE_2D, color[i], 0)
+}
+let buffResize = (width, height) => {
+  for (let c of color) {
+    gl.bindTexture(gl.TEXTURE_2D, c)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+  }
+}
+
 let blurFragSrc = require('./gaussianBlur.glslf')
 let blurFrag = shad(gl.FRAGMENT_SHADER, blurFragSrc)
 let blur = new Post(gl, blurFrag)
@@ -61,9 +135,9 @@ let deresFragSrc = require('./deres.glslf')
 let deresFrag = shad(gl.FRAGMENT_SHADER, deresFragSrc)
 let deres = new Post(gl, deresFrag)
 
-let motionBlurSrc = require('./shadeDepth.glslf')
-let motionBlurFrag = shad(gl.FRAGMENT_SHADER, motionBlurSrc)
-let motionBlur = new Post(gl, motionBlurFrag)
+let depthFragSrc = require('./shadeDepth.glslf')
+let depthFrag = shad(gl.FRAGMENT_SHADER, depthFragSrc)
+let depth = new Post(gl, depthFrag)
 
 if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
   console.log('framebuffer incomplete')
@@ -78,7 +152,8 @@ let resize = function (w, h) {
   deres.resize(w, h)
   dither.resize(w, h)
   blur.resize(w, h)
-  motionBlur.resize(w, h)
+  depth.resize(w, h)
+  buffResize(w, h)
 }
 
 window.addEventListener('resize', function (e) {
@@ -104,22 +179,50 @@ let entity = Entity.fromGLTF(f, {
 let draw = function () {
   requestAnimationFrame(draw)
 
-  let t = performance.now() / 10000
+  let t = performance.timing.navigationStart + performance.now() / 10000
   let t2 = (t * 100) % 1
   let t3 = 1 / Math.cos(t * 0.3)
 
-  motionBlur.bind()
+  depth.bind()
 
   entity.draw(projection)
 
   dither.bind()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  motionBlur.draw()
+  depth.draw()
+
+  /* gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  dither.draw() */
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
+  gl.useProgram(buff)
+  /* for (let i in color) {
+    gl.clearBufferfv(gl.COLOR, colorAttachment[i], [1.0, 0.0, 1.0, 1.0])
+  } */
+  // gl.clearBufferfv(gl.FRAMEBUFFER, null, [1, 0, 1, 1])
+  // gl.clearBufferfv(gl.COLOR, null, [1.0, 0.0, 1.0, 1.0])
+  // gl.bindFramebuffer(gl.COLOR_ATTACHMENT0)
+
+  // gl.drawBuffers(colorAttachment.slice(0, color.length))
+
+  // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+  /*gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  depth.draw()*/
 
   // blur.bind()
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
+  gl.drawBuffers(colorAttachment.slice(0, color.length))
+  //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  let temp = _.pick(depth, ['frame', 'texture', 'depth'])
+  depth.frame = frame
+  depth.texture = color[0]
+  // depth.depth = color[1]
+  depth.draw()
+  // _.extend(depth, temp)
+  // dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 
   /* gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -127,7 +230,7 @@ let draw = function () {
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  motionBlur.draw() */
+  depth.draw() */
 }
 
 draw()

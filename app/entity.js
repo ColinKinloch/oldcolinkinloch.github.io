@@ -109,7 +109,7 @@ class Entity {
     this.uniformLocations['normal'] = gl.getUniformLocation(this.material, 'normalMatrix')
   }
   draw (projection) {
-    let t = performance.now() / 10000
+    let t = (performance.timing.navigationStart + performance.now()) / 10000
 
     let mv = this.uniforms['modelView']
     glm.mat4.identity(mv)
