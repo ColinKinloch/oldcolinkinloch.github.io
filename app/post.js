@@ -1,6 +1,9 @@
 import _ from 'lodash'
 
 import vertexShader from './post.glslv'
+import Shader from './shader.js'
+import ShaderProgram from './shaderprogram.js'
+import Texture from './texture.js'
 
 class Post {
   constructor (gl, shader, o = {}) {
@@ -11,52 +14,36 @@ class Post {
       min: gl.LINEAR,
       wrapS: gl.CLAMP_TO_EDGE,
       wrapT: gl.CLAMP_TO_EDGE,
-      uniforms: {},
       uniformLocations: {}
     })
     this.gl = gl
 
     this.fragment = shader
-    this.vertex = gl.createShader(gl.VERTEX_SHADER)
-    gl.shaderSource(this.vertex, vertexShader)
-    gl.compileShader(this.vertex)
-    if (!gl.getShaderParameter(this.vertex, gl.COMPILE_STATUS)) {
-      console.error(gl.getShaderInfoLog(this.vertex))
-      return null
-    }
-    this.program = gl.createProgram()
-    gl.attachShader(this.program, this.vertex)
-    gl.attachShader(this.program, this.fragment)
-    gl.linkProgram(this.program)
+    this.vertex = new Shader(gl, gl.VERTEX_SHADER, vertexShader)
+    this.program = new ShaderProgram(gl, [this.vertex, this.fragment])
 
-    this.positionAttrib = gl.getAttribLocation(this.program, 'position')
+    this.positionAttrib = this.program.getAttribLocation('position')
 
-    this.frameUniform = gl.getUniformLocation(this.program, 'frame')
-    this.depthUniform = gl.getUniformLocation(this.program, 'depth')
+    this.frameUniform = this.program.getUniformLocation('frame')
+    this.depthUniform = this.program.getUniformLocation('depth')
 
-    this.timeUniform = gl.getUniformLocation(this.program, 't')
+    this.timeUniform = this.program.getUniformLocation('t')
 
     this.frame = gl.createFramebuffer()
-    this.depth = gl.createTexture()
     this.texture = gl.createTexture()
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.frame)
-    gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.mag)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.min)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.wrapS)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.wrapT)
+    this.depth = new Texture(gl, {
+      type: gl.UNSIGNED_SHORT,
+      format: gl.DEPTH_COMPONENT
+    })
+    this.texture = new Texture(gl)
 
-    gl.bindTexture(gl.TEXTURE_2D, this.depth)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.mag)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this.min)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.wrapS)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.wrapT)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.frame)
 
     this.resize(this.width, this.height)
 
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depth, 0)
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture.texture, 0)
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depth.texture, 0)
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.bindRenderbuffer(gl.RENDERBUFFER, null)
@@ -83,10 +70,6 @@ class Post {
     } else {
       this.data = this.contextData.get(gl)
     }
-
-    for (let u in this.uniforms) {
-      this.uniformLocations[u] = gl.getUniformLocation(this.program, u)
-    }
   }
 
   bind () {
@@ -95,29 +78,19 @@ class Post {
 
   draw (t = 0) {
     let gl = this.gl
-    gl.useProgram(this.program)
+    this.program.use()
     gl.bindBuffer(gl.ARRAY_BUFFER, this.data.vertexBuffer)
     gl.vertexAttribPointer(this.positionAttrib, 2, gl.UNSIGNED_BYTE, false, 0, 0)
-    gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    for (let u in this.uniforms) {
-      let uniform = this.uniforms[u]
-      if (uniform.value instanceof Array) {
-        switch (uniform.type) {
-          case 'f':
-          case 'i':
-            gl['uniform' + uniform.value.length + 'v' + uniform.type](this.uniformLocations[u])
-        }
-      }
-    }
+    this.texture.bind()
 
     gl.uniform1f(this.timeUniform, t)
     gl.uniform1i(this.frameUniform, 0)
     gl.uniform1i(this.depthUniform, 2)
 
     gl.activeTexture(gl.TEXTURE0 + 0)
-    gl.bindTexture(gl.TEXTURE_2D, this.texture)
+    this.texture.bind()
     gl.activeTexture(gl.TEXTURE0 + 2)
-    gl.bindTexture(gl.TEXTURE_2D, this.depth)
+    this.depth.bind()
 
     gl.enableVertexAttribArray(this.positionAttrib)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
@@ -126,14 +99,10 @@ class Post {
   }
 
   resize (width, height) {
-    let gl = this.gl
     this.width = width
     this.height = height
-    gl.bindTexture(gl.TEXTURE_2D, this.depth)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, this.width, this.height, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_SHORT, null)
-    gl.bindTexture(gl.TEXTURE_2D, this.texture)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
-    gl.bindTexture(gl.TEXTURE_2D, null)
+    this.depth.resize(width, height)
+    this.texture.resize(width, height)
   }
 }
 Post.prototype.contextData = new Map()

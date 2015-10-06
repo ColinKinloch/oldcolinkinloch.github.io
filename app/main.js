@@ -1,14 +1,11 @@
 document.querySelector('#year').innerHTML = new Date().getYear()
 
-import Q from 'q'
-require('q-xhr')(XMLHttpRequest, Q)
-
 import _ from 'lodash'
 import glm from 'gl-matrix'
 
-import glTFLoader from './glTFLoader.js'
-
 import Entity from './entity.js'
+import Shader from './shader.js'
+import ShaderProgram from './shaderprogram.js'
 import Post from './post.js'
 
 import vert from './main.glslv'
@@ -31,31 +28,10 @@ gl.clearColor(0, 0, 0, 0)
 gl.clearDepth(1)
 window.gl = gl
 
-let shad = function (type, source) {
-  let shader = gl.createShader(type)
-  gl.shaderSource(shader, source)
-  gl.compileShader(shader)
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error(gl.getShaderInfoLog(shader))
-    let s = source.split('\n')
-    source = ''
-    let i = 0
-    for (let l of s) {
-      i++
-      source += `${i}:${l}\n`
-    }
-    console.error(source)
-    return null
-  }
-  return shader
-}
-
 let buffFragSrc = require('./bufferDraw.glslf')
-let buffFrag = shad(gl.FRAGMENT_SHADER, buffFragSrc)
+let buffFrag = new Shader(gl, gl.FRAGMENT_SHADER, buffFragSrc)
 
-let buff = gl.createProgram()
-gl.attachShader(buff, buffFrag)
-gl.linkProgram(buff)
+let buff = new ShaderProgram(gl, [buffFrag])
 
 let color = [
   gl.createTexture(),
@@ -120,19 +96,19 @@ let buffResize = (width, height) => {
 }
 
 let blurFragSrc = require('./gaussianBlur.glslf')
-let blurFrag = shad(gl.FRAGMENT_SHADER, blurFragSrc)
+let blurFrag = new Shader(gl, gl.FRAGMENT_SHADER, blurFragSrc)
 let blur = new Post(gl, blurFrag)
 
 let ditherFragSrc = require('./dithering.glslf')
-let ditherFrag = shad(gl.FRAGMENT_SHADER, ditherFragSrc)
+let ditherFrag = new Shader(gl, gl.FRAGMENT_SHADER, ditherFragSrc)
 let dither = new Post(gl, ditherFrag)
 
 let deresFragSrc = require('./deres.glslf')
-let deresFrag = shad(gl.FRAGMENT_SHADER, deresFragSrc)
+let deresFrag = new Shader(gl, gl.FRAGMENT_SHADER, deresFragSrc)
 let deres = new Post(gl, deresFrag)
 
 let depthFragSrc = require('./shadeDepth.glslf')
-let depthFrag = shad(gl.FRAGMENT_SHADER, depthFragSrc)
+let depthFrag = new Shader(gl, gl.FRAGMENT_SHADER, depthFragSrc)
 let depth = new Post(gl, depthFrag)
 
 if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
@@ -157,23 +133,21 @@ window.addEventListener('resize', function (e) {
 })
 window.dispatchEvent(new Event('resize'))
 
-let vertShad = shad(gl.VERTEX_SHADER, vert)
-let fragShad = shad(gl.FRAGMENT_SHADER, frag)
+let vertShad = new Shader(gl, gl.VERTEX_SHADER, vert)
+let fragShad = new Shader(gl, gl.FRAGMENT_SHADER, frag)
 
-let prog = gl.createProgram()
-gl.attachShader(prog, vertShad)
-gl.attachShader(prog, fragShad)
-gl.linkProgram(prog)
+let prog = new ShaderProgram(gl, [vertShad, fragShad])
 
 let f = './box.gltf'
 
 let entity = Entity.fromGLTF(f, {
   gl: gl,
-  material: prog
+  material: prog.program
 })
 
+let rafId = 0
 let draw = function () {
-  requestAnimationFrame(draw)
+  rafId = requestAnimationFrame(draw)
 
   let t = performance.timing.navigationStart + performance.now() / 10000
   let t2 = (t * 100) % 1
@@ -204,15 +178,16 @@ let draw = function () {
 
   // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-  /*gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  /* gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  depth.draw()*/
+  depth.draw() */
 
   // blur.bind()
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-  // gl.drawBuffers(colorAttachment.slice(0, color.length))
+  buff.use()
+  gl.drawBuffers(colorAttachment.slice(0, color.length))
   // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  let temp = _.pick(depth, ['frame', 'texture', 'depth'])
+  // let temp = _.pick(depth, ['frame', 'texture', 'depth'])
   // depth.frame = frame
   // depth.texture = color[0]
   // depth.depth = color[1]
@@ -228,6 +203,25 @@ let draw = function () {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   depth.draw() */
+  if (paused) {
+    cancelAnimationFrame(rafId)
+  }
 }
+
+let paused = false
+window.addEventListener('keypress', (e) => {
+  console.log(e)
+  if (e.repeat) {
+  } else {
+    switch (e.code) {
+      case 'Space': {
+        paused = !paused
+      }
+    }
+  }
+  if (!paused) {
+    draw()
+  }
+})
 
 draw()

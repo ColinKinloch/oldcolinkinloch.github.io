@@ -1,7 +1,7 @@
 import glTFParser from '../lib/glTF/loaders/glTF-parser.js'
 import glm from 'gl-matrix'
 
-class Entity {
+let Entity = class {
   constructor (gl, material) {
     this.gl = gl
     this.material = material
