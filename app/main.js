@@ -53,10 +53,6 @@ let shad = function (type, source) {
 let buffFragSrc = require('./bufferDraw.glslf')
 let buffFrag = shad(gl.FRAGMENT_SHADER, buffFragSrc)
 
-if (!gl.getShaderParameter(buff, gl.COMPILE_STATUS)) {
-  console.error(gl.getShaderInfoLog(buff))
-}
-
 let buff = gl.createProgram()
 gl.attachShader(buff, buffFrag)
 gl.linkProgram(buff)
@@ -195,8 +191,8 @@ let draw = function () {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   dither.draw() */
 
-  gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
-  gl.useProgram(buff)
+  // gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
+  // gl.useProgram(buff)
   /* for (let i in color) {
     gl.clearBufferfv(gl.COLOR, colorAttachment[i], [1.0, 0.0, 1.0, 1.0])
   } */
@@ -214,13 +210,14 @@ let draw = function () {
 
   // blur.bind()
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-  gl.drawBuffers(colorAttachment.slice(0, color.length))
-  //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  // gl.drawBuffers(colorAttachment.slice(0, color.length))
+  // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   let temp = _.pick(depth, ['frame', 'texture', 'depth'])
-  depth.frame = frame
-  depth.texture = color[0]
+  // depth.frame = frame
+  // depth.texture = color[0]
   // depth.depth = color[1]
-  depth.draw()
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  dither.draw()
   // _.extend(depth, temp)
   // dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 
