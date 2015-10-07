@@ -4,9 +4,9 @@ import _ from 'lodash'
 import glm from 'gl-matrix'
 
 import Entity from './entity.js'
-import Shader from './shader.js'
-import ShaderProgram from './shaderprogram.js'
-import Post from './post.js'
+import ShaderCurry from './gl/shader.js'
+import ShaderProgramCurry from './gl/shaderprogram.js'
+import PostCurry from './gl/post.js'
 
 import vert from './main.glslv'
 import frag from './main.glslf'
@@ -27,12 +27,14 @@ gl.enable(gl.DEPTH_TEST)
 gl.clearColor(0, 0, 0, 0)
 gl.clearDepth(1)
 window.gl = gl
+let Shader = ShaderCurry(gl)
+let ShaderProgram = ShaderProgramCurry(gl)
+let Post = PostCurry(gl)
 
 let buffFragSrc = require('./bufferDraw.glslf')
-let buffFrag = new Shader(gl, gl.FRAGMENT_SHADER, buffFragSrc)
+let buffFrag = new Shader(gl.FRAGMENT_SHADER, buffFragSrc)
 
 // let buff = new ShaderProgram(gl, [buffFrag])
-
 let color = [
   gl.createTexture(),
   gl.createTexture(),
@@ -96,20 +98,20 @@ let buffResize = (width, height) => {
 }
 
 let blurFragSrc = require('./gaussianBlur.glslf')
-let blurFrag = new Shader(gl, gl.FRAGMENT_SHADER, blurFragSrc)
-let blur = new Post(gl, blurFrag)
+let blurFrag = new Shader(gl.FRAGMENT_SHADER, blurFragSrc)
+let blur = new Post(blurFrag)
 
 let ditherFragSrc = require('./dithering.glslf')
-let ditherFrag = new Shader(gl, gl.FRAGMENT_SHADER, ditherFragSrc)
-let dither = new Post(gl, ditherFrag)
+let ditherFrag = new Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
+let dither = new Post(ditherFrag)
 
 let deresFragSrc = require('./deres.glslf')
-let deresFrag = new Shader(gl, gl.FRAGMENT_SHADER, deresFragSrc)
-let deres = new Post(gl, deresFrag)
+let deresFrag = new Shader(gl.FRAGMENT_SHADER, deresFragSrc)
+let deres = new Post(deresFrag)
 
 let depthFragSrc = require('./shadeDepth.glslf')
-let depthFrag = new Shader(gl, gl.FRAGMENT_SHADER, depthFragSrc)
-let depth = new Post(gl, depthFrag)
+let depthFrag = new Shader(gl.FRAGMENT_SHADER, depthFragSrc)
+let depth = new Post(depthFrag)
 
 if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
   console.log('framebuffer incomplete')
@@ -133,10 +135,10 @@ window.addEventListener('resize', function (e) {
 })
 window.dispatchEvent(new Event('resize'))
 
-let vertShad = new Shader(gl, gl.VERTEX_SHADER, vert)
-let fragShad = new Shader(gl, gl.FRAGMENT_SHADER, frag)
+let vertShad = new Shader(gl.VERTEX_SHADER, vert)
+let fragShad = new Shader(gl.FRAGMENT_SHADER, frag)
 
-let prog = new ShaderProgram(gl, [vertShad, fragShad])
+let prog = new ShaderProgram([vertShad, fragShad])
 
 let f = './box.gltf'
 
