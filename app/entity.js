@@ -99,14 +99,14 @@ let Entity = class {
     this.uniforms['projection'] = glm.mat4.create()
     this.uniforms['modelView'] = glm.mat4.create()
 
-    gl.useProgram(this.material)
+    this.material.use()
 
-    this.attribLocations['position'] = gl.getAttribLocation(this.material, 'position')
-    this.attribLocations['normal'] = gl.getAttribLocation(this.material, 'normal')
+    this.attribLocations['position'] = this.material.getAttribLocation('position')
+    this.attribLocations['normal'] = this.material.getAttribLocation('normal')
 
-    this.uniformLocations['modelView'] = gl.getUniformLocation(this.material, 'modelViewMatrix')
-    this.uniformLocations['projection'] = gl.getUniformLocation(this.material, 'projectionMatrix')
-    this.uniformLocations['normal'] = gl.getUniformLocation(this.material, 'normalMatrix')
+    this.uniformLocations['modelView'] = this.material.getUniformLocation('modelViewMatrix')
+    this.uniformLocations['projection'] = this.material.getUniformLocation('projectionMatrix')
+    this.uniformLocations['normal'] = this.material.getUniformLocation('normalMatrix')
   }
   draw (projection) {
     let t = (performance.timing.navigationStart + performance.now()) / 10000
@@ -124,7 +124,7 @@ let Entity = class {
 
     let gl = this.gl
 
-    gl.useProgram(this.material)
+    this.material.use()
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers['index'])

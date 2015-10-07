@@ -30,7 +30,6 @@ class Post {
     this.timeUniform = this.program.getUniformLocation('t')
 
     this.frame = gl.createFramebuffer()
-    this.texture = gl.createTexture()
 
     this.depth = new Texture(gl, {
       type: gl.UNSIGNED_SHORT,

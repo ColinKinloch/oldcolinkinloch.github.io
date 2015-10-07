@@ -31,7 +31,7 @@ window.gl = gl
 let buffFragSrc = require('./bufferDraw.glslf')
 let buffFrag = new Shader(gl, gl.FRAGMENT_SHADER, buffFragSrc)
 
-let buff = new ShaderProgram(gl, [buffFrag])
+// let buff = new ShaderProgram(gl, [buffFrag])
 
 let color = [
   gl.createTexture(),
@@ -142,7 +142,7 @@ let f = './box.gltf'
 
 let entity = Entity.fromGLTF(f, {
   gl: gl,
-  material: prog.program
+  material: prog
 })
 
 let rafId = 0
@@ -152,6 +152,7 @@ let draw = function () {
   let t = performance.timing.navigationStart + performance.now() / 10000
   let t2 = (t * 100) % 1
   let t3 = 1 / Math.cos(t * 0.3)
+  // gl.clearColor((t, 0, 0, 0)
 
   depth.bind()
 
@@ -184,8 +185,8 @@ let draw = function () {
 
   // blur.bind()
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-  buff.use()
-  gl.drawBuffers(colorAttachment.slice(0, color.length))
+  // buff.use()
+  // gl.drawBuffers(colorAttachment.slice(0, color.length))
   // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   // let temp = _.pick(depth, ['frame', 'texture', 'depth'])
   // depth.frame = frame
