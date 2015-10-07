@@ -1,4 +1,3 @@
-#version 100 es
 precision highp float;
 
 void main() {
