@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import glTFParser from '../lib/glTF/loaders/glTF-parser.js'
 import glm from 'gl-matrix'
 
@@ -8,6 +9,7 @@ let Entity = class {
     this.children = []
 
     this.arrayBuffers = {}
+    this.dataViews = {}
     this.buffers = {}
     this.attribs = {}
     this.uniforms = {}
@@ -148,21 +150,52 @@ let Entity = class {
   static fromGLTF (path, options) {
     let gl = options.gl
     let entity = new Entity(gl, options.material)
-    let promises = []
+    let promises = {
+    }
+    let keyer = (type, id) => {
+      return type + id
+    }
+    let add = (type, id, promise) => {
+      let key = keyer(type, id)
+      promises[key] = promise
+    }
+    let get = (type, id) => {
+      let key = keyer(type, id)
+      return promises[key]
+    }
     let loader = Object.create(glTFParser.glTFParser, {
       handleBuffer: {
         value: (id, desc) => {
+          console.log(`Buffer "${id}":`, desc)
           let req = new Request(desc.uri)
           let fetchPromise = fetch(req)
-          promises.push(fetchPromise)
-          fetchPromise.then((res) => {
-            let bufferPromise = res.arrayBuffer()
-            promises.push(bufferPromise)
-            bufferPromise.then((buffer) => {
+          add('buffer', id,
+            fetchPromise.then((res) => {
+              console.log('Got .bin', id)
+              return res.arrayBuffer()
+            }).then((buffer) => {
+              console.log('.bin to ArrayBuffer', id)
               entity.arrayBuffers[id] = buffer
+              return new Promise((res) =>
+                res(buffer)
+              )
             })
+          )
+          return true
+        }
+      },
+      handleBufferView: {
+        value: (id, desc) => {
+          console.log(`BufferView "${id}"`, desc)
+          let bufferViewPromise = get('buffer', desc.buffer)
+          bufferViewPromise.then((arrayBuffer) => {
+            console.log('Create DataView', id)
+            entity.dataViews[id] = new DataView(
+              arrayBuffer,
+              desc.byteOffset,
+              desc.byteLength
+            )
           })
-          console.log(`Buffer "${id}":`, desc)
           return true
         }
       },
@@ -174,8 +207,9 @@ let Entity = class {
             console.error('Failed to load glTF!')
             return
           }
-          Promise.all(promises).then(() => {
-            console.log('go!')
+          console.log('Waiting for', _(promises).values().flatten().value())
+          Promise.all(_(promises).values().flatten().value()).then(() => {
+            console.log('DONE!')
             // entity.setBuffer(resources.buffers[0])
           })
         }

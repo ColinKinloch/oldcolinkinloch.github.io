@@ -82,6 +82,7 @@ gulp.task('server', () => {
   app.listen(port, host, () => {
     util.log('Listening at', util.colors.magenta(`http://${host}:${port}`))
   })
+  livereload.listen()
   /*
   devServer.listen(port, host, () => {
     util.log('Listening at', util.colors.magenta(`http://${host}:${port}`))
