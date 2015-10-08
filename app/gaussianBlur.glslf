@@ -16,6 +16,6 @@ void main() {
   vec4 sum = vec4(0.);
   for(int x = -v; x < v; ++x)
     for(int y = -v; y < v; ++y)
-	    sum += texture(frame, vec2(screenCoords.x - x*h, screenCoords.y - y*h) ) * gaussian(x,y);
+      sum += texture(frame, vec2(screenCoords.x - x*h, screenCoords.y - y*h) ) * gaussian(x,y);
   fragmentColour.rgba = sum.rgba;
 }

@@ -4,10 +4,7 @@ import _ from 'lodash'
 import glm from 'gl-matrix'
 
 import Entity from './entity.js'
-import ShaderCurry from './gl/shader.js'
-import ShaderProgramCurry from './gl/shaderprogram.js'
-import PostCurry from './gl/post.js'
-
+import GLCurry from './gl'
 import vert from './main.glslv'
 import frag from './main.glslf'
 
@@ -26,15 +23,16 @@ el.getContext('experimental-webgl', glopts)
 gl.enable(gl.DEPTH_TEST)
 gl.clearColor(0, 0, 0, 0)
 gl.clearDepth(1)
-window.gl = gl
-let Shader = ShaderCurry(gl)
-let ShaderProgram = ShaderProgramCurry(gl)
-let Post = PostCurry(gl)
+let GL = GLCurry(gl)
+window.GL = GL
 
+/*
 let buffFragSrc = require('./bufferDraw.glslf')
-let buffFrag = new Shader(gl.FRAGMENT_SHADER, buffFragSrc)
+let buffFrag = new GL.Shader(gl.FRAGMENT_SHADER, buffFragSrc)
+*/
 
-// let buff = new ShaderProgram(gl, [buffFrag])
+/*
+let buff = new ShaderProgram(gl, [buffFrag])
 let color = [
   gl.createTexture(),
   gl.createTexture(),
@@ -75,7 +73,7 @@ let colorAttachment = [
   gl.DRAW_BUFFER13,
   gl.DRAW_BUFFER14,
   gl.DRAW_BUFFER15
-] */
+]
 
 for (let c of color) {
   gl.bindTexture(gl.TEXTURE_2D, c)
@@ -96,22 +94,23 @@ let buffResize = (width, height) => {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
   }
 }
+*/
 
 let blurFragSrc = require('./gaussianBlur.glslf')
-let blurFrag = new Shader(gl.FRAGMENT_SHADER, blurFragSrc)
-let blur = new Post(blurFrag)
+let blurFrag = new GL.Shader(gl.FRAGMENT_SHADER, blurFragSrc)
+let blur = new GL.Post(blurFrag)
 
 let ditherFragSrc = require('./dithering.glslf')
-let ditherFrag = new Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
-let dither = new Post(ditherFrag)
+let ditherFrag = new GL.Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
+let dither = new GL.Post(ditherFrag)
 
 let deresFragSrc = require('./deres.glslf')
-let deresFrag = new Shader(gl.FRAGMENT_SHADER, deresFragSrc)
-let deres = new Post(deresFrag)
+let deresFrag = new GL.Shader(gl.FRAGMENT_SHADER, deresFragSrc)
+let deres = new GL.Post(deresFrag)
 
 let depthFragSrc = require('./shadeDepth.glslf')
-let depthFrag = new Shader(gl.FRAGMENT_SHADER, depthFragSrc)
-let depth = new Post(depthFrag)
+let depthFrag = new GL.Shader(gl.FRAGMENT_SHADER, depthFragSrc)
+let depth = new GL.Post(depthFrag)
 
 if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
   console.log('framebuffer incomplete')
@@ -127,7 +126,7 @@ let resize = function (w, h) {
   dither.resize(w, h)
   blur.resize(w, h)
   depth.resize(w, h)
-  buffResize(w, h)
+  // buffResize(w, h)
 }
 
 window.addEventListener('resize', function (e) {
@@ -135,10 +134,10 @@ window.addEventListener('resize', function (e) {
 })
 window.dispatchEvent(new Event('resize'))
 
-let vertShad = new Shader(gl.VERTEX_SHADER, vert)
-let fragShad = new Shader(gl.FRAGMENT_SHADER, frag)
+let vertShad = new GL.Shader(gl.VERTEX_SHADER, vert)
+let fragShad = new GL.Shader(gl.FRAGMENT_SHADER, frag)
 
-let prog = new ShaderProgram([vertShad, fragShad])
+let prog = new GL.ShaderProgram([vertShad, fragShad])
 
 let f = './box.gltf'
 
