@@ -1,5 +1,5 @@
-let ShaderProgram = (gl) => {
-  let ShaderProgramCurry = class {
+let ShaderProgramCurry = (gl) => {
+  let ShaderProgram = class {
     constructor (shaders) {
       this.program = gl.createProgram()
       for (let shader of shaders) {
@@ -20,7 +20,7 @@ let ShaderProgram = (gl) => {
       gl.useProgram(this.program)
     }
   }
-  return ShaderProgramCurry
+  return ShaderProgram
 }
 
-export default ShaderProgram
+export default ShaderProgramCurry

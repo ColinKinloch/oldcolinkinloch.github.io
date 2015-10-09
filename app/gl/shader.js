@@ -1,5 +1,5 @@
-let Shader = (gl) => {
-  let ShaderCurry = class {
+let ShaderCurry = (gl) => {
+  let Shader = class {
     constructor (type, source) {
       this.shader = gl.createShader(type)
       gl.shaderSource(this.shader, source)
@@ -18,7 +18,7 @@ let Shader = (gl) => {
       }
     }
   }
-  return ShaderCurry
+  return Shader
 }
 
-export default Shader
+export default ShaderCurry

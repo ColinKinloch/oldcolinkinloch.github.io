@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-let Texture2D = (gl) => {
-  let Texture2DCurry = class {
+let Texture2DCurry = (gl) => {
+  let Texture2D = class {
     constructor (options = {}) {
       _.defaults(this, options, {
         type: gl.UNSIGNED_BYTE,
@@ -40,7 +40,7 @@ let Texture2D = (gl) => {
       gl.bindTexture(gl.TEXTURE_2D, null)
     }
   }
-  return Texture2DCurry
+  return Texture2D
 }
 
-export default Texture2D
+export default Texture2DCurry

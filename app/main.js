@@ -3,8 +3,8 @@ document.querySelector('#year').innerHTML = new Date().getYear()
 import _ from 'lodash'
 import glm from 'gl-matrix'
 
-import Entity from './entity.js'
 import GLCurry from './gl'
+import EntityCurry from './entity.js'
 import vert from './main.glslv'
 import frag from './main.glslf'
 
@@ -24,6 +24,7 @@ gl.enable(gl.DEPTH_TEST)
 gl.clearColor(0, 0, 0, 0)
 gl.clearDepth(1)
 let GL = GLCurry(gl)
+let Entity = EntityCurry(gl)
 window.GL = GL
 
 /*
@@ -142,7 +143,6 @@ let prog = new GL.ShaderProgram([vertShad, fragShad])
 let f = './box.gltf'
 
 let entity = Entity.fromGLTF(f, {
-  gl: gl,
   material: prog
 })
 

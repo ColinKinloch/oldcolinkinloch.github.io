@@ -1,5 +1,5 @@
-let Framebuffer = (gl) => {
-  let FramebufferCurry = class {
+let FramebufferCurry = (gl) => {
+  let Framebuffer = class {
     constructor () {
       this.framebuffer = gl.createFramebuffer()
     }
@@ -22,7 +22,7 @@ let Framebuffer = (gl) => {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     }
   }
-  return FramebufferCurry
+  return Framebuffer
 }
 
-export default Framebuffer
+export default FramebufferCurry

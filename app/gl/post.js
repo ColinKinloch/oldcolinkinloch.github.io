@@ -1,13 +1,21 @@
 import _ from 'lodash'
 import vertexShader from './post.glslv'
 
-let Post = (gl) => {
+let PostCurry = (gl) => {
   let Shader = require('./shader.js')(gl)
   let ShaderProgram = require('./shaderprogram.js')(gl)
   let Texture2D = require('./texture2d.js')(gl)
   let Framebuffer = require('./framebuffer.js')(gl)
 
-  let PostCurry = class {
+  let vertexBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
+    0, 0,
+    0, 4,
+    4, 0
+  ]), gl.STATIC_DRAW)
+
+  let Post = class {
     constructor (shader, o = {}) {
       _.defaults(this, o, {
         width: 1,
@@ -50,23 +58,6 @@ let Post = (gl) => {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
       gl.bindRenderbuffer(gl.RENDERBUFFER, null)
       gl.bindTexture(gl.TEXTURE_2D, null)
-
-      if (!this.contextData.has(gl)) {
-        let vb = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, vb)
-        gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
-          0, 0,
-          0, 4,
-          4, 0
-        ]), gl.STATIC_DRAW)
-
-        this.data = {
-          vertexBuffer: vb
-        }
-        this.contextData.set(gl, this.data)
-      } else {
-        this.data = this.contextData.get(gl)
-      }
     }
 
     bind () {
@@ -75,7 +66,7 @@ let Post = (gl) => {
 
     draw (t = 0) {
       this.program.use()
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.data.vertexBuffer)
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
       gl.vertexAttribPointer(this.positionAttrib, 2, gl.UNSIGNED_BYTE, false, 0, 0)
       this.texture.bind()
 
@@ -101,8 +92,7 @@ let Post = (gl) => {
       this.texture.resize(width, height)
     }
   }
-  PostCurry.prototype.contextData = new Map()
-  return PostCurry
+  return Post
 }
 
-module.exports = Post
+module.exports = PostCurry
