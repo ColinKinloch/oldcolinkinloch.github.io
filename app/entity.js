@@ -269,6 +269,8 @@ let EntityCurry = (gl) => {
         handleLoadCompleted: {
           value: (success) => {
             console.log(loader._json)
+            console.timeEnd(`Load glTF: ${path}`)
+            console.groupEnd()
             if (success) {
               console.log('Loaded glTF!')
             } else {
@@ -286,6 +288,8 @@ let EntityCurry = (gl) => {
       })
 
       loader.initWithPath(path)
+      console.groupCollapsed('Loading glTF')
+      console.time(`Load glTF: ${path}`)
       loader.load()
       return entity
     }
