@@ -249,6 +249,17 @@ let EntityCurry = (gl) => {
             return true
           }
         },
+        handleMesh: {
+          value: (id, desc) => {
+            console.log(`Mesh "${id}"`, desc)
+            return true
+          }
+        },
+        handleNode: {
+          value: (id, desc) => {
+            console.log(`Node "${id}"`, desc)
+          }
+        },
         handleScene: {
           value: (id, desc) => {
             console.log(`Scene "${id}"`, desc)
@@ -257,6 +268,7 @@ let EntityCurry = (gl) => {
         },
         handleLoadCompleted: {
           value: (success) => {
+            console.log(loader._json)
             if (success) {
               console.log('Loaded glTF!')
             } else {
