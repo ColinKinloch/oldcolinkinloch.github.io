@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import glTFParser from '../lib/glTF/loaders/glTF-parser.js'
 import glm from 'gl-matrix'
+import ShaderCurry from './gl/shader.js'
+import ShaderProgramCurry from './gl/shaderprogram.js'
 
 let Entity = class {
   constructor (gl, material) {
@@ -196,6 +198,42 @@ let Entity = class {
               desc.byteLength
             )
           })
+          return true
+        }
+      },
+      handleShader: {
+        value: (id, desc) => {
+          console.log(`Shader "${id}"`, desc)
+          let req = new Request(desc.uri)
+          let fetchPromise = fetch(req)
+          add('shader', id,
+            fetchPromise.then((res) => {
+              return res.text()
+            })
+          )
+          return true
+        }
+      },
+      handleProgram: {
+        value: (id, desc) => {
+          console.log(`Program "${id}"`, desc)
+          let vert = get('shader', desc.vertexShader)
+          let frag = get('shader', desc.fragmentShader)
+          add('program', id,
+            Promise.all([vert, frag])
+            .then((shaders) => {
+              /*
+              let vertShad = new Shader(gl.VERTEX_SHADER, shaders[0])
+              let fragShad = new Shader(gl.FRAGMENT_SHADER, shaders[1])
+              let program = new ShaderProgram([vertShad, fragShad])
+              */
+            })
+          )
+        }
+      },
+      handleScene: {
+        value: (id, desc) => {
+          console.log(`Scene "${id}"`, desc)
           return true
         }
       },
