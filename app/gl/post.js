@@ -36,6 +36,8 @@ let PostCurry = (gl) => {
       this.frameUniform = this.program.getUniformLocation('frame')
       this.depthUniform = this.program.getUniformLocation('depth')
 
+      this.sizeUniform = this.program.getUniformLocation('destSize')
+
       this.timeUniform = this.program.getUniformLocation('t')
 
       this.frame = new Framebuffer()
@@ -62,9 +64,10 @@ let PostCurry = (gl) => {
 
     bind () {
       this.frame.bind()
+      gl.viewport(0, 0, this.width, this.height)
     }
 
-    draw (t = 0) {
+    draw (size = [32, 32], t = 0) {
       this.program.use()
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
       gl.vertexAttribPointer(this.positionAttrib, 2, gl.UNSIGNED_BYTE, false, 0, 0)
@@ -74,10 +77,14 @@ let PostCurry = (gl) => {
       gl.uniform1i(this.frameUniform, 0)
       gl.uniform1i(this.depthUniform, 2)
 
+      gl.uniform2iv(this.sizeUniform, size)
+
       gl.activeTexture(gl.TEXTURE0 + 0)
       this.texture.bind()
       gl.activeTexture(gl.TEXTURE0 + 2)
       this.depth.bind()
+
+      gl.viewport(0, 0, size[0], size[1])
 
       gl.enableVertexAttribArray(this.positionAttrib)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
@@ -88,6 +95,7 @@ let PostCurry = (gl) => {
     resize (width, height) {
       this.width = width
       this.height = height
+      gl.uniform2iv(this.sizeUniform, [width, height])
       this.depth.resize(width, height)
       this.texture.resize(width, height)
     }

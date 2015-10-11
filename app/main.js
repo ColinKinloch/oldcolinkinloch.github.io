@@ -117,6 +117,10 @@ let depthFragSrc = require('./shadeDepth.glslf')
 let depthFrag = new GL.Shader(gl.FRAGMENT_SHADER, depthFragSrc)
 let depth = new GL.Post(depthFrag)
 
+let drawFragSrc = require('./draw.glslf')
+let drawFrag = new GL.Shader(gl.FRAGMENT_SHADER, drawFragSrc)
+let draw = new GL.Post(drawFrag)
+
 if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
   console.log('framebuffer incomplete')
 }
@@ -127,10 +131,11 @@ let resize = function (w, h) {
   gl.viewport(0, 0, w, h)
   glm.mat4.perspective(projection, 45, w / h, 3, 11)
   // glm.mat4.ortho(projection, -5, 5, -5, 5, -10, 10)
+  depth.resize(w * 0.5, h * 0.5)
   deres.resize(w, h)
-  dither.resize(w * 0.9, h * 0.9)
+  dither.resize(w * 0.5, h * 0.5)
   blur.resize(w, h)
-  depth.resize(w, h)
+  draw.resize(w * 0.5, h * 0.5)
   // buffResize(w, h)
 }
 
@@ -151,8 +156,8 @@ let entity = Entity.fromGLTF(f, {
 })
 
 let rafId = 0
-let draw = function () {
-  rafId = requestAnimationFrame(draw)
+let render = function () {
+  rafId = requestAnimationFrame(render)
 
   let t = performance.timing.navigationStart + performance.now() / 10000
   let t2 = (t * 100) % 1
@@ -165,7 +170,7 @@ let draw = function () {
 
   dither.bind()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  depth.draw()
+  depth.draw([dither.width, dither.height])
 
   /* gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -189,7 +194,6 @@ let draw = function () {
   depth.draw() */
 
   // blur.bind()
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   // buff.use()
   // gl.drawBuffers(colorAttachment.slice(0, color.length))
   // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -197,15 +201,18 @@ let draw = function () {
   // depth.frame = frame
   // depth.texture = color[0]
   // depth.depth = color[1]
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  dither.draw()
   // _.extend(depth, temp)
   // dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
 
-  /* gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  draw.bind()
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-  blur.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
+  dither.draw([draw.width, draw.height])
 
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  draw.draw([el.width, el.height])
+
+  /*
   gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   depth.draw() */
@@ -226,8 +233,8 @@ window.addEventListener('keypress', (e) => {
     }
   }
   if (!paused) {
-    draw()
+    render()
   }
 })
 
-draw()
+render()
