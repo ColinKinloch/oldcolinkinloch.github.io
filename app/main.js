@@ -11,19 +11,22 @@ import frag from './main.glslf'
 let projection = glm.mat4.create()
 
 let el = document.querySelector('#main')
-let glopts = {
-  antialias: false,
-  alpha: true
-}
-let gl =
-el.getContext('webgl2', glopts) ||
-el.getContext('experimental-webgl2', glopts) ||
-el.getContext('webgl', glopts) ||
-el.getContext('experimental-webgl', glopts)
-gl.enable(gl.DEPTH_TEST)
-gl.clearColor(0, 0, 0, 0)
-gl.clearDepth(1)
-let GL = GLCurry(gl)
+/*
+let ctx = new Context(el, {
+  options: {
+    antialias: false,
+    alpha: true
+  }
+})
+let gl = ctx.gl
+*/
+let GL = GLCurry(el, {
+  options: {
+    antialias: false,
+    alpha: true
+  }
+})
+let gl = GL.gl
 let Entity = EntityCurry(gl)
 window.GL = GL
 

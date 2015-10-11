@@ -269,8 +269,6 @@ let EntityCurry = (gl) => {
         handleLoadCompleted: {
           value: (success) => {
             console.log(loader._json)
-            console.timeEnd(`Load glTF: ${path}`)
-            console.groupEnd()
             if (success) {
               console.log('Loaded glTF!')
             } else {
@@ -280,6 +278,8 @@ let EntityCurry = (gl) => {
             console.log('Waiting for', _(promises).values().flatten().value())
             Promise.all(_(promises).values().flatten().value()).then(() => {
               console.log('DONE!')
+              console.timeEnd(`Loading glTF: ${path}`)
+              console.groupEnd()
               if (success) console.log('Success')
               // entity.setBuffer(resources.buffers[0])
             })
@@ -288,8 +288,8 @@ let EntityCurry = (gl) => {
       })
 
       loader.initWithPath(path)
-      console.groupCollapsed('Loading glTF')
-      console.time(`Load glTF: ${path}`)
+      console.groupCollapsed('Load glTF')
+      console.time(`Loading glTF: ${path}`)
       loader.load()
       return entity
     }
