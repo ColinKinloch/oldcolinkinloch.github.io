@@ -21,6 +21,7 @@ let ctx = new Context(el, {
 let gl = ctx.gl
 */
 let GL = GLCurry(el, {
+  version: 2,
   options: {
     antialias: false,
     alpha: true
@@ -127,7 +128,7 @@ let resize = function (w, h) {
   glm.mat4.perspective(projection, 45, w / h, 3, 11)
   // glm.mat4.ortho(projection, -5, 5, -5, 5, -10, 10)
   deres.resize(w, h)
-  dither.resize(w, h)
+  dither.resize(w * 0.9, h * 0.9)
   blur.resize(w, h)
   depth.resize(w, h)
   // buffResize(w, h)

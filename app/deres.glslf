@@ -6,12 +6,12 @@ precision mediump float;
 uniform sampler2D frame;
 uniform sampler2D depth;
 
-in vec2 screenCoords;
+in vec2 screenCoord;
 
 uniform float t;
 
 out vec4 fragmentColour;
 
 void main() {
-  fragmentColour = deres(texture(depth, screenCoords) * texture(frame, deres(screenCoords, t)), t * .5);
+  fragmentColour = deres(texture(depth, screenCoord) * texture(frame, deres(screenCoord, t)), t * .5);
 }

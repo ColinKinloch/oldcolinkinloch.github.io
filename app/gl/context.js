@@ -12,13 +12,12 @@ let Context = class {
 
     _.defaults(this, opts,
       {
+        version: 1,
         options: {
           antialias: false,
           alpha: true
         },
-        extensions: [
-          'WEBGL_draw_buffers'
-        ]
+        extensions: []
       }
     )
 
@@ -41,11 +40,9 @@ let Context = class {
     let exp = 'experimental-'
     let wgl = 'webgl'
     let el = this.el
-
-    this.gl = el.getContext(wgl + 2, this.options) ||
-    el.getContext(exp + wgl + 2, this.options) ||
-    el.getContext(wgl, this.options) ||
-    el.getContext(exp + wgl, this.options)
+    if (this.version === 1) this.version = ''
+    this.gl = el.getContext(wgl + this.version, this.options) ||
+    el.getContext(exp + wgl + this.version, this.options)
   }
   createExtensions () {
     let gl = this.gl
