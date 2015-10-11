@@ -189,14 +189,19 @@ let EntityCurry = (gl) => {
           value: (id, desc) => {
             console.log(`BufferView "${id}"`, desc)
             let bufferViewPromise = get('buffer', desc.buffer)
-            bufferViewPromise.then((arrayBuffer) => {
-              console.log('Create DataView', id)
-              entity.dataViews[id] = new DataView(
-                arrayBuffer,
-                desc.byteOffset,
-                desc.byteLength
-              )
-            })
+            add('bufferView', id,
+              bufferViewPromise.then((arrayBuffer) => {
+                console.log('Create DataView', id)
+                return new Promise((res) => {
+                  res(new DataView(
+                      arrayBuffer,
+                      desc.byteOffset,
+                      desc.byteLength
+                    )
+                  )
+                })
+              })
+            )
             return true
           }
         },
@@ -252,6 +257,15 @@ let EntityCurry = (gl) => {
         handleMesh: {
           value: (id, desc) => {
             console.log(`Mesh "${id}"`, desc)
+            for (let prim of desc.primitives) {
+              get('accessor', prim.indices)
+              .then((accessor) => {
+                let idBuff = entity.buffers['indices'] = gl.createBuffer()
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idBuff)
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
+              })
+              console.log(prim)
+            }
             return true
           }
         },
@@ -263,6 +277,46 @@ let EntityCurry = (gl) => {
         handleScene: {
           value: (id, desc) => {
             console.log(`Scene "${id}"`, desc)
+            return true
+          }
+        },
+        handleAccessor: {
+          value: (id, desc) => {
+            console.log(`Accessor "${id}"`, desc)
+            add('accessor', id,
+              get('bufferView', desc.bufferView)
+              .then((dataView) => {
+                return new Promise((res, rej) => {
+                  console.log('accessor is:')
+                  switch (desc.componentType) {
+                    case 5120: { // BYTE
+                      res(dataView.getInt8(desc.byteOffset))
+                      break
+                    }
+                    case 5121: { // UNSIGNED_BYTE
+                      res(dataView.getUint8(desc.byteOffset))
+                      break
+                    }
+                    case 5122: { // SHORT
+                      res(dataView.getInt16(desc.byteOffset))
+                      break
+                    }
+                    case 5123: { // UNSIGNED_SHORT
+                      res(dataView.getUint16(desc.byteOffset))
+                      break
+                    }
+                    case 5126: { // FLOAT
+                      res(dataView.getFloat32(desc.byteOffset))
+                      break
+                    }
+                    default: {
+                      console.error('unknown')
+                      rej()
+                    }
+                  }
+                })
+              })
+            )
             return true
           }
         },

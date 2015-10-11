@@ -131,11 +131,12 @@ let resize = function (w, h) {
   gl.viewport(0, 0, w, h)
   glm.mat4.perspective(projection, 45, w / h, 3, 11)
   // glm.mat4.ortho(projection, -5, 5, -5, 5, -10, 10)
-  depth.resize(w * 0.5, h * 0.5)
+  let scale = 0.125
+  depth.resize(w * scale, h * scale)
   deres.resize(w, h)
-  dither.resize(w * 0.5, h * 0.5)
+  dither.resize(w * scale, h * scale)
   blur.resize(w, h)
-  draw.resize(w * 0.5, h * 0.5)
+  draw.resize(w * scale, h * scale)
   // buffResize(w, h)
 }
 
