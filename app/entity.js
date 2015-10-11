@@ -3,9 +3,12 @@ import glTFParser from '../lib/glTF/loaders/glTF-parser.js'
 import glm from 'gl-matrix'
 import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
+import BufferCurry from './gl/buffer.js'
+
 let EntityCurry = (gl) => {
   let Shader = ShaderCurry(gl)
   let ShaderProgram = ShaderProgramCurry(gl)
+  let Buffer = BufferCurry(gl)
 
   let Entity = class {
     constructor (material) {
@@ -20,9 +23,9 @@ let EntityCurry = (gl) => {
       this.uniformLocations = {}
       this.attribLocations = {}
 
-      this.buffers['vertex'] = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['vertex'])
-      gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
+      this.buffers['position'] = gl.createBuffer()
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['position'])
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
         1, 1, 1,
         -1, 1, 1,
         -1, 1, -1,
@@ -51,7 +54,7 @@ let EntityCurry = (gl) => {
 
       this.buffers['normal'] = gl.createBuffer()
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['normal'])
-      gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
         0, 1, 0,
         0, 1, 0,
         0, 1, 0,
@@ -80,7 +83,7 @@ let EntityCurry = (gl) => {
 
       this.buffers['index'] = gl.createBuffer()
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers['index'])
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([
         // Top
         0, 1, 2,
         0, 2, 3,
@@ -119,9 +122,9 @@ let EntityCurry = (gl) => {
 
       let mv = this.uniforms['modelView']
       glm.mat4.identity(mv)
-      glm.mat4.translate(mv, mv, [0, 0, -8])
+      glm.mat4.translate(mv, mv, [0, 0, -5])
       glm.mat4.rotate(mv, mv, t * 10, [0.5, Math.tan(t) * 3, Math.sin(t)])
-      glm.mat4.scale(mv, mv, [0.25, 3, 1.5])
+      // glm.mat4.scale(mv, mv, [0.25, 3, 1.5])
 
       let normal = this.uniforms['normal']
       glm.mat3.normalFromMat4(normal, mv)
@@ -132,22 +135,22 @@ let EntityCurry = (gl) => {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers['index'])
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['vertex'])
-      gl.vertexAttribPointer(this.attribLocations['position'], 3, gl.BYTE, false, 0, 0)
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['position'])
+      gl.vertexAttribPointer(this.attribLocations['position'], 3, gl.FLOAT, false, 0, 0)
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['normal'])
-      gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.BYTE, false, 0, 0)
+      gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.FLOAT, false, 0, 0)
 
       gl.uniformMatrix3fv(this.uniformLocations['normal'], false, this.uniforms['normal'])
       gl.uniformMatrix4fv(this.uniformLocations['projection'], false, this.uniforms['projection'])
       gl.uniformMatrix4fv(this.uniformLocations['modelView'], false, this.uniforms['modelView'])
 
-      gl.enableVertexAttribArray(this.attribLocations['vertex'])
+      gl.enableVertexAttribArray(this.attribLocations['position'])
       gl.enableVertexAttribArray(this.attribLocations['normal'])
 
-      gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_BYTE, 0)
+      gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0)
 
       gl.disableVertexAttribArray(this.attribLocations['normal'])
-      gl.disableVertexAttribArray(this.attribLocations['vertex'])
+      gl.disableVertexAttribArray(this.attribLocations['position'])
     }
     static fromGLTF (path, options) {
       let entity = new Entity(options.material)
@@ -193,12 +196,13 @@ let EntityCurry = (gl) => {
               bufferViewPromise.then((arrayBuffer) => {
                 console.log('Create DataView', id)
                 return new Promise((res) => {
-                  res(new DataView(
+                  res({buffer: arrayBuffer})
+                  /*res(new DataView(
                       arrayBuffer,
                       desc.byteOffset,
                       desc.byteLength
                     )
-                  )
+                  )*/
                 })
               })
             )
@@ -260,11 +264,22 @@ let EntityCurry = (gl) => {
             for (let prim of desc.primitives) {
               get('accessor', prim.indices)
               .then((accessor) => {
-                let idBuff = entity.buffers['indices'] = gl.createBuffer()
+                let idBuff = entity.buffers['index'] = gl.createBuffer()
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idBuff)
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
               })
-              console.log(prim)
+              get('accessor', prim.attributes.POSITION)
+              .then((accessor) => {
+                let posBuff = entity.buffers['position'] = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
+                gl.bufferData(gl.ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
+              })
+              get('accessor', prim.attributes.NORMAL)
+              .then((accessor) => {
+                let posBuff = entity.buffers['normal'] = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
+                gl.bufferData(gl.ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
+              })
             }
             return true
           }
@@ -285,28 +300,28 @@ let EntityCurry = (gl) => {
             console.log(`Accessor "${id}"`, desc)
             add('accessor', id,
               get('bufferView', desc.bufferView)
-              .then((dataView) => {
+              .then((data) => {
                 return new Promise((res, rej) => {
-                  console.log('accessor is:')
                   switch (desc.componentType) {
                     case 5120: { // BYTE
-                      res(dataView.getInt8(desc.byteOffset))
+                      res(new Int8Array(data.buffer, desc.byteOffset))
                       break
                     }
                     case 5121: { // UNSIGNED_BYTE
-                      res(dataView.getUint8(desc.byteOffset))
+                      res(new Uint8Array(data.buffer, desc.byteOffset))
                       break
                     }
                     case 5122: { // SHORT
-                      res(dataView.getInt16(desc.byteOffset))
+                      res(new Int16Array(data.buffer, desc.byteOffset))
                       break
                     }
                     case 5123: { // UNSIGNED_SHORT
-                      res(dataView.getUint16(desc.byteOffset))
+                      res(new Uint16Array(data.buffer, desc.byteOffset))
                       break
                     }
                     case 5126: { // FLOAT
-                      res(dataView.getFloat32(desc.byteOffset))
+                      console.log('hoo')
+                      res(new Float32Array(data.buffer, desc.byteOffset))
                       break
                     }
                     default: {
