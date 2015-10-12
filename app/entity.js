@@ -4,11 +4,13 @@ import glm from 'gl-matrix'
 import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
 import BufferCurry from './gl/buffer.js'
+import AttributeCurry from './gl/attribute.js'
 
 let EntityCurry = (gl) => {
   let Shader = ShaderCurry(gl)
   let ShaderProgram = ShaderProgramCurry(gl)
   let Buffer = BufferCurry(gl)
+  let Attribute = AttributeCurry(gl)
 
   let Entity = class {
     constructor (material) {
@@ -110,8 +112,14 @@ let EntityCurry = (gl) => {
 
       this.material.use()
 
+      this.material.attribs.push(new Attribute('position', {stride: 12}))
+      this.material.attribs.push(new Attribute('normal', {stride: 12}))
+
+      for (let attrib of this.material.attribs) attrib.getLocation(this.material)
+      /*
       this.attribLocations['position'] = this.material.getAttribLocation('position')
       this.attribLocations['normal'] = this.material.getAttribLocation('normal')
+      */
 
       this.uniformLocations['modelView'] = this.material.getUniformLocation('modelViewMatrix')
       this.uniformLocations['projection'] = this.material.getUniformLocation('projectionMatrix')
@@ -135,22 +143,26 @@ let EntityCurry = (gl) => {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers['index'])
+      /*
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['position'])
-      gl.vertexAttribPointer(this.attribLocations['position'], 3, gl.FLOAT, false, 0, 0)
+      gl.vertexAttribPointer(this.attribLocations['position'], 3, gl.FLOAT, false, 12, 0)
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['normal'])
-      gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.FLOAT, false, 0, 0)
+      gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.FLOAT, false, 12, 0)
+      */
+      for (let attrib of this.material.attribs) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[attrib.name])
+        attrib.pointer()
+      }
 
       gl.uniformMatrix3fv(this.uniformLocations['normal'], false, this.uniforms['normal'])
       gl.uniformMatrix4fv(this.uniformLocations['projection'], false, this.uniforms['projection'])
       gl.uniformMatrix4fv(this.uniformLocations['modelView'], false, this.uniforms['modelView'])
 
-      gl.enableVertexAttribArray(this.attribLocations['position'])
-      gl.enableVertexAttribArray(this.attribLocations['normal'])
-
+      // for (let a in this.attribLocations) gl.enableVertexAttribArray(this.attribLocations[a])
+      for (let attrib of this.material.attribs) attrib.enable()
       gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0)
-
-      gl.disableVertexAttribArray(this.attribLocations['normal'])
-      gl.disableVertexAttribArray(this.attribLocations['position'])
+      for (let attrib of this.material.attribs) attrib.disable()
+      // for (let a in this.attribLocations) gl.disableVertexAttribArray(this.attribLocations[a])
     }
     static fromGLTF (path, options) {
       let entity = new Entity(options.material)
@@ -191,12 +203,25 @@ let EntityCurry = (gl) => {
         handleBufferView: {
           value: (id, desc) => {
             console.log(`BufferView "${id}"`, desc)
-            let bufferViewPromise = get('buffer', desc.buffer)
             add('bufferView', id,
-              bufferViewPromise.then((arrayBuffer) => {
+              get('buffer', desc.buffer)
+              .then((arrayBuffer) => {
                 console.log('Create DataView', id)
                 return new Promise((res) => {
-                  res({buffer: arrayBuffer})
+                  let target = 0
+                  switch (desc.target) {
+                    case 34962: { // ARRAY_BUFFER
+                      target = gl.ARRAY_BUFFER
+                    }
+                    case 34963: { // ELEMENT_ARRAY_BUFFER
+                      target = gl.ELEMENT_ARRAY_BUFFER
+                    }
+                  }
+                  res({
+                    buffer: arrayBuffer,
+                    target: target,
+                    length: desc.byteLength
+                  })
                   /*res(new DataView(
                       arrayBuffer,
                       desc.byteOffset,
@@ -266,19 +291,22 @@ let EntityCurry = (gl) => {
               .then((accessor) => {
                 let idBuff = entity.buffers['index'] = gl.createBuffer()
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idBuff)
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
+                console.warn('index', accessor)
               })
               get('accessor', prim.attributes.POSITION)
               .then((accessor) => {
                 let posBuff = entity.buffers['position'] = gl.createBuffer()
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
-                gl.bufferData(gl.ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
+                gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
+                console.warn('position', accessor)
               })
               get('accessor', prim.attributes.NORMAL)
               .then((accessor) => {
                 let posBuff = entity.buffers['normal'] = gl.createBuffer()
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
-                gl.bufferData(gl.ARRAY_BUFFER, accessor, gl.STATIC_DRAW)
+                gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
+                console.warn('normal', accessor)
               })
             }
             return true
@@ -302,26 +330,44 @@ let EntityCurry = (gl) => {
               get('bufferView', desc.bufferView)
               .then((data) => {
                 return new Promise((res, rej) => {
+                  let bO = desc.byteOffset
+                  let len = data.length
+                  let c = desc.count
+                  let l
+                  switch (desc.type) {
+                    case 'SCALAR':
+                      l = 1
+                      break
+                    case 'VEC2':
+                      l = 2
+                      break
+                    case 'VEC3':
+                      l = 3
+                      break
+                    case 'VEC4':
+                      l = 4
+                      break
+                  }
+                  let array
                   switch (desc.componentType) {
                     case 5120: { // BYTE
-                      res(new Int8Array(data.buffer, desc.byteOffset))
+                      array = new Int8Array(data.buffer, bO, l * c)
                       break
                     }
                     case 5121: { // UNSIGNED_BYTE
-                      res(new Uint8Array(data.buffer, desc.byteOffset))
+                      array = new Uint8Array(data.buffer, bO, l * c)
                       break
                     }
                     case 5122: { // SHORT
-                      res(new Int16Array(data.buffer, desc.byteOffset))
+                      array = new Int16Array(data.buffer, bO, l * c)
                       break
                     }
                     case 5123: { // UNSIGNED_SHORT
-                      res(new Uint16Array(data.buffer, desc.byteOffset))
+                      array = new Uint16Array(data.buffer, bO, l * c)
                       break
                     }
                     case 5126: { // FLOAT
-                      console.log('hoo')
-                      res(new Float32Array(data.buffer, desc.byteOffset))
+                      array = new Float32Array(data.buffer, bO, l * c)
                       break
                     }
                     default: {
@@ -329,6 +375,11 @@ let EntityCurry = (gl) => {
                       rej()
                     }
                   }
+                  res({
+                    array: array,
+                    offset: desc.byteOffset,
+                    stride: desc.byteStride
+                  })
                 })
               })
             )

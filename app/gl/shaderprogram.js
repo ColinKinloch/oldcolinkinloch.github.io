@@ -6,6 +6,7 @@ let ShaderProgramCurry = (gl) => {
         gl.attachShader(this.program, shader.shader)
       }
       gl.linkProgram(this.program)
+      this.attribs = []
     }
     getAttribLocation (name) {
       return gl.getAttribLocation(this.program, name)
