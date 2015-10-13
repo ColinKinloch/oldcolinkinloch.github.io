@@ -80,7 +80,8 @@ let EntityCurry = (gl) => {
 
       this.buffers['index'] = new Buffer({
         binding: gl.ELEMENT_ARRAY_BUFFER,
-        type: gl.UNSIGNED_SHORT
+        type: gl.UNSIGNED_SHORT,
+        count: 36
       })
       this.buffers['index'].bind()
       this.buffers['index'].bufferData(new Uint16Array([
@@ -158,7 +159,7 @@ let EntityCurry = (gl) => {
 
       // for (let a in this.attribLocations) gl.enableVertexAttribArray(this.attribLocations[a])
       for (let attrib in this.material.attribs) this.material.attribs[attrib].enable()
-      gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0)
+      gl.drawElements(gl.TRIANGLES, this.buffers['index'].count, gl.UNSIGNED_SHORT, 0)
       for (let attrib in this.material.attribs) this.material.attribs[attrib].disable()
       // for (let a in this.attribLocations) gl.disableVertexAttribArray(this.attribLocations[a])
     }
@@ -224,7 +225,8 @@ let EntityCurry = (gl) => {
                     vbo: vbo,
                     buffer: buff,
                     target: target,
-                    length: desc.byteLength
+                    length: desc.byteLength,
+                    count: desc.count
                   })
                   /* res(new DataView(
                       arrayBuffer,
