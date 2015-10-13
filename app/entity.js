@@ -217,12 +217,15 @@ let EntityCurry = (gl) => {
                       target = gl.ELEMENT_ARRAY_BUFFER
                     }
                   }
+                  let offset = desc.byteOffset
+                  let length = desc.byteLength
+                  let buff = arrayBuffer.slice(offset, length - offset)
                   res({
-                    buffer: arrayBuffer,
+                    buffer: buff,
                     target: target,
                     length: desc.byteLength
                   })
-                  /*res(new DataView(
+                  /* res(new DataView(
                       arrayBuffer,
                       desc.byteOffset,
                       desc.byteLength
