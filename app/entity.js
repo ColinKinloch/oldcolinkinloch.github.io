@@ -25,9 +25,9 @@ let EntityCurry = (gl) => {
       this.uniformLocations = {}
       this.attribLocations = {}
 
-      this.buffers['position'] = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['position'])
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      this.buffers['position'] = new Buffer()
+      this.buffers['position'].bind()
+      this.buffers['position'].bufferData(new Float32Array([
         1, 1, 1,
         -1, 1, 1,
         -1, 1, -1,
@@ -52,11 +52,11 @@ let EntityCurry = (gl) => {
         -1, -1, -1,
         -1, 1, -1,
         1, 1, -1
-      ]), gl.STATIC_DRAW)
+      ]))
 
-      this.buffers['normal'] = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['normal'])
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      this.buffers['normal'] = new Buffer()
+      this.buffers['normal'].bind()
+      this.buffers['normal'].bufferData(new Float32Array([
         0, 1, 0,
         0, 1, 0,
         0, 1, 0,
@@ -81,11 +81,14 @@ let EntityCurry = (gl) => {
         0, 0, -1,
         0, 0, -1,
         0, 0, -1
-      ]), gl.STATIC_DRAW)
+      ]))
 
-      this.buffers['index'] = gl.createBuffer()
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers['index'])
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([
+      this.buffers['index'] = new Buffer({
+        binding: gl.ELEMENT_ARRAY_BUFFER,
+        type: gl.UNSIGNED_SHORT
+      })
+      this.buffers['index'].bind()
+      this.buffers['index'].bufferData(new Uint16Array([
         // Top
         0, 1, 2,
         0, 2, 3,
@@ -104,7 +107,7 @@ let EntityCurry = (gl) => {
         // Back
         20, 21, 22,
         20, 22, 23
-      ]), gl.STATIC_DRAW)
+      ]))
 
       this.uniforms['normal'] = glm.mat3.create()
       this.uniforms['projection'] = glm.mat4.create()
@@ -142,7 +145,7 @@ let EntityCurry = (gl) => {
       this.material.use()
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers['index'])
+      this.buffers['index'].bind()
       /*
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['position'])
       gl.vertexAttribPointer(this.attribLocations['position'], 3, gl.FLOAT, false, 12, 0)
@@ -150,7 +153,7 @@ let EntityCurry = (gl) => {
       gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.FLOAT, false, 12, 0)
       */
       for (let attrib of this.material.attribs) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[attrib.name])
+        this.buffers[attrib.name].bind()
         attrib.pointer()
       }
 
@@ -220,7 +223,10 @@ let EntityCurry = (gl) => {
                   let offset = desc.byteOffset
                   let length = desc.byteLength
                   let buff = arrayBuffer.slice(offset, length - offset)
+                  let vbo = new Buffer({binding: target})
+                  vbo.bufferData(buff)
                   res({
+                    vbo: vbo,
                     buffer: buff,
                     target: target,
                     length: desc.byteLength
@@ -292,24 +298,45 @@ let EntityCurry = (gl) => {
             for (let prim of desc.primitives) {
               get('accessor', prim.indices)
               .then((accessor) => {
+                /*
                 let idBuff = entity.buffers['index'] = gl.createBuffer()
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idBuff)
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
+                */
+                entity.buffers['index'] = accessor.vbo
                 console.warn('index', accessor)
+                let a = accessor.attrib
+                a.name = 'index'
+                a.getLocation(entity.material)
+                entity.material.attribs.push(a)
               })
               get('accessor', prim.attributes.POSITION)
               .then((accessor) => {
+                /*
                 let posBuff = entity.buffers['position'] = gl.createBuffer()
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
                 gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
+                */
+                entity.buffers['position'] = accessor.vbo
                 console.warn('position', accessor)
+                let a = accessor.attrib
+                a.name = 'position'
+                a.getLocation(entity.material)
+                entity.material.attribs.push(a)
               })
               get('accessor', prim.attributes.NORMAL)
               .then((accessor) => {
+                /*
                 let posBuff = entity.buffers['normal'] = gl.createBuffer()
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
                 gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
+                */
+                entity.buffers['normal'] = accessor.vbo
                 console.warn('normal', accessor)
+                let a = accessor.attrib
+                a.name = 'normal'
+                a.getLocation(entity.material)
+                entity.material.attribs.push(a)
               })
             }
             return true
@@ -336,7 +363,7 @@ let EntityCurry = (gl) => {
                   let bO = desc.byteOffset
                   let len = data.length
                   let c = desc.count
-                  let l
+                  let l = 1
                   switch (desc.type) {
                     case 'SCALAR':
                       l = 1
@@ -352,25 +379,33 @@ let EntityCurry = (gl) => {
                       break
                   }
                   let array
+                  let type
                   switch (desc.componentType) {
                     case 5120: { // BYTE
                       array = new Int8Array(data.buffer, bO, l * c)
+                      type = gl.BYTE
                       break
                     }
                     case 5121: { // UNSIGNED_BYTE
                       array = new Uint8Array(data.buffer, bO, l * c)
+                      type = gl.UNSIGNED_BYTE
                       break
                     }
                     case 5122: { // SHORT
                       array = new Int16Array(data.buffer, bO, l * c)
+                      type = gl.SHORT
                       break
                     }
                     case 5123: { // UNSIGNED_SHORT
                       array = new Uint16Array(data.buffer, bO, l * c)
+                      type = gl.UNSIGNED_SHORT
                       break
                     }
                     case 5126: { // FLOAT
+                      console.warn(data.buffer, bO, l * c)
                       array = new Float32Array(data.buffer, bO, l * c)
+                      type = gl.FLOAT
+                      console.warn(array)
                       break
                     }
                     default: {
@@ -378,7 +413,14 @@ let EntityCurry = (gl) => {
                       rej()
                     }
                   }
+                  let attrib = new Attribute('', {
+                    size: l,
+                    type: type,
+                    stride: desc.byteStride
+                  })
                   res({
+                    vbo: data.vbo,
+                    attrib: attrib,
                     array: array,
                     offset: desc.byteOffset,
                     stride: desc.byteStride
