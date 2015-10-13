@@ -7,14 +7,15 @@ let AttributeCurry = (gl) => {
         size: 3,
         type: gl.FLOAT,
         normalized: false,
-        stride: 0
+        stride: 0,
+        offset: 0
       })
     }
     getLocation (program) {
       this.location = program.getAttribLocation(this.name)
     }
     pointer (pointer = 0) {
-      gl.vertexAttribPointer(this.location, this.size, this.type, this.normalized, this.stride, pointer)
+      gl.vertexAttribPointer(this.location, this.size, this.type, this.normalized, this.stride, this.offset)
     }
     enable () {
       gl.enableVertexAttribArray(this.location)

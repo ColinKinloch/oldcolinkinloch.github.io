@@ -25,7 +25,7 @@ let EntityCurry = (gl) => {
       this.uniformLocations = {}
       this.attribLocations = {}
 
-      this.buffers['position'] = new Buffer()
+      this.buffers['normal'] = this.buffers['position'] = new Buffer()
       this.buffers['position'].bind()
       this.buffers['position'].bufferData(new Float32Array([
         1, 1, 1,
@@ -51,12 +51,7 @@ let EntityCurry = (gl) => {
         1, -1, -1,
         -1, -1, -1,
         -1, 1, -1,
-        1, 1, -1
-      ]))
-
-      this.buffers['normal'] = new Buffer()
-      this.buffers['normal'].bind()
-      this.buffers['normal'].bufferData(new Float32Array([
+        1, 1, -1,
         0, 1, 0,
         0, 1, 0,
         0, 1, 0,
@@ -115,8 +110,8 @@ let EntityCurry = (gl) => {
 
       this.material.use()
 
-      this.material.attribs.push(new Attribute('position', {stride: 12}))
-      this.material.attribs.push(new Attribute('normal', {stride: 12}))
+      this.material.attribs.push(new Attribute('position', {stride: 0, offset: 0}))
+      this.material.attribs.push(new Attribute('normal', {stride: 0, offset: 36 * 8}))
 
       for (let attrib of this.material.attribs) attrib.getLocation(this.material)
       /*
@@ -416,7 +411,8 @@ let EntityCurry = (gl) => {
                   let attrib = new Attribute('', {
                     size: l,
                     type: type,
-                    stride: desc.byteStride
+                    stride: desc.byteStride,
+                    offset: desc.byteOffset
                   })
                   res({
                     vbo: data.vbo,
