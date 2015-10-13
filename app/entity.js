@@ -110,10 +110,10 @@ let EntityCurry = (gl) => {
 
       this.material.use()
 
-      this.material.attribs.push(new Attribute('position', {stride: 0, offset: 0}))
-      this.material.attribs.push(new Attribute('normal', {stride: 0, offset: 36 * 8}))
+      this.material.attribs['position'] = new Attribute('position', {stride: 0, offset: 0})
+      this.material.attribs['normal'] = new Attribute('normal', {stride: 0, offset: 36 * 8})
 
-      for (let attrib of this.material.attribs) attrib.getLocation(this.material)
+      for (let attrib in this.material.attribs) this.material.attribs[attrib].getLocation(this.material)
       /*
       this.attribLocations['position'] = this.material.getAttribLocation('position')
       this.attribLocations['normal'] = this.material.getAttribLocation('normal')
@@ -147,9 +147,9 @@ let EntityCurry = (gl) => {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers['normal'])
       gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.FLOAT, false, 12, 0)
       */
-      for (let attrib of this.material.attribs) {
-        this.buffers[attrib.name].bind()
-        attrib.pointer()
+      for (let attrib in this.material.attribs) {
+        this.buffers[this.material.attribs[attrib].name].bind()
+        this.material.attribs[attrib].pointer()
       }
 
       gl.uniformMatrix3fv(this.uniformLocations['normal'], false, this.uniforms['normal'])
@@ -157,9 +157,9 @@ let EntityCurry = (gl) => {
       gl.uniformMatrix4fv(this.uniformLocations['modelView'], false, this.uniforms['modelView'])
 
       // for (let a in this.attribLocations) gl.enableVertexAttribArray(this.attribLocations[a])
-      for (let attrib of this.material.attribs) attrib.enable()
+      for (let attrib in this.material.attribs) this.material.attribs[attrib].enable()
       gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0)
-      for (let attrib of this.material.attribs) attrib.disable()
+      for (let attrib in this.material.attribs) this.material.attribs[attrib].disable()
       // for (let a in this.attribLocations) gl.disableVertexAttribArray(this.attribLocations[a])
     }
     static fromGLTF (path, options) {
@@ -293,17 +293,16 @@ let EntityCurry = (gl) => {
             for (let prim of desc.primitives) {
               get('accessor', prim.indices)
               .then((accessor) => {
+                let idBuff = entity.buffers['index'] = accessor.vbo
                 /*
-                let idBuff = entity.buffers['index'] = gl.createBuffer()
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idBuff)
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
-                */
-                entity.buffers['index'] = accessor.vbo
-                console.warn('index', accessor)
+                let name = 'index'
+                entity.buffers[name] = accessor.vbo
+                console.warn(name, accessor)
                 let a = accessor.attrib
-                a.name = 'index'
+                a.name = name
                 a.getLocation(entity.material)
-                entity.material.attribs.push(a)
+                entity.material.attribs[name] = a
+                */
               })
               get('accessor', prim.attributes.POSITION)
               .then((accessor) => {
@@ -312,12 +311,13 @@ let EntityCurry = (gl) => {
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
                 gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
                 */
-                entity.buffers['position'] = accessor.vbo
-                console.warn('position', accessor)
+                let name = 'position'
+                entity.buffers[name] = accessor.vbo
+                console.warn(name, accessor)
                 let a = accessor.attrib
-                a.name = 'position'
+                a.name = name
                 a.getLocation(entity.material)
-                entity.material.attribs.push(a)
+                entity.material.attribs[name] = a
               })
               get('accessor', prim.attributes.NORMAL)
               .then((accessor) => {
@@ -326,12 +326,13 @@ let EntityCurry = (gl) => {
                 gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
                 gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
                 */
-                entity.buffers['normal'] = accessor.vbo
-                console.warn('normal', accessor)
+                let name = 'normal'
+                entity.buffers[name] = accessor.vbo
+                console.warn(name, accessor)
                 let a = accessor.attrib
-                a.name = 'normal'
+                a.name = name
                 a.getLocation(entity.material)
-                entity.material.attribs.push(a)
+                entity.material.attribs[name] = a
               })
             }
             return true
@@ -397,8 +398,7 @@ let EntityCurry = (gl) => {
                       break
                     }
                     case 5126: { // FLOAT
-                      console.warn(data.buffer, bO, l * c)
-                      array = new Float32Array(data.buffer, bO, l * c)
+                      // array = new Float32Array(data.buffer, bO, l * c)
                       type = gl.FLOAT
                       console.warn(array)
                       break
