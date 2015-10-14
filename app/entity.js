@@ -29,52 +29,52 @@ let EntityCurry = (gl) => {
       this.buffers['position'].bind()
       this.buffers['position'].bufferData(new Float32Array([
         1, 1, 1,
+        0, 1, 0,
         -1, 1, 1,
+        0, 1, 0,
         -1, 1, -1,
+        0, 1, 0,
         1, 1, -1,
+        0, 1, 0,
         1, -1, -1,
+        0, -1, 0,
         -1, -1, -1,
+        0, -1, 0,
         -1, -1, 1,
+        0, -1, 0,
         1, -1, 1,
+        0, -1, 0,
         1, 1, 1,
+        1, 0, 0,
         1, 1, -1,
+        1, 0, 0,
         1, -1, -1,
+        1, 0, 0,
         1, -1, 1,
+        1, 0, 0,
         -1, 1, 1,
+        -1, 0, 0,
         -1, 1, -1,
+        -1, 0, 0,
         -1, -1, -1,
+        -1, 0, 0,
         -1, -1, 1,
+        -1, 0, 0,
         1, 1, 1,
+        0, 0, 1,
         -1, 1, 1,
+        0, 0, 1,
         -1, -1, 1,
+        0, 0, 1,
         1, -1, 1,
+        0, 0, 1,
         1, -1, -1,
+        0, 0, -1,
         -1, -1, -1,
+        0, 0, -1,
         -1, 1, -1,
+        0, 0, -1,
         1, 1, -1,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
         0, 0, -1
       ]))
 
@@ -111,8 +111,11 @@ let EntityCurry = (gl) => {
 
       this.material.use()
 
-      this.material.attribs['position'] = new Attribute('position', {stride: 0, offset: 0})
-      this.material.attribs['normal'] = new Attribute('normal', {stride: 0, offset: 36 * 8})
+      let float = 4
+      let vec = 3
+      let offset = float * vec
+      this.material.attribs['position'] = new Attribute('position', { stride: offset * 2, offset: 0 })
+      this.material.attribs['normal'] = new Attribute('normal', { stride: offset * 2, offset: offset })
 
       for (let attrib in this.material.attribs) this.material.attribs[attrib].getLocation(this.material)
       /*
@@ -380,22 +383,22 @@ let EntityCurry = (gl) => {
                   let type
                   switch (desc.componentType) {
                     case 5120: { // BYTE
-                      array = new Int8Array(data.buffer, bO, l * c)
+                      // array = new Int8Array(data.buffer, bO, l * c)
                       type = gl.BYTE
                       break
                     }
                     case 5121: { // UNSIGNED_BYTE
-                      array = new Uint8Array(data.buffer, bO, l * c)
+                      // array = new Uint8Array(data.buffer, bO, l * c)
                       type = gl.UNSIGNED_BYTE
                       break
                     }
                     case 5122: { // SHORT
-                      array = new Int16Array(data.buffer, bO, l * c)
+                      // array = new Int16Array(data.buffer, bO, l * c)
                       type = gl.SHORT
                       break
                     }
                     case 5123: { // UNSIGNED_SHORT
-                      array = new Uint16Array(data.buffer, bO, l * c)
+                      // array = new Uint16Array(data.buffer, bO, l * c)
                       type = gl.UNSIGNED_SHORT
                       break
                     }

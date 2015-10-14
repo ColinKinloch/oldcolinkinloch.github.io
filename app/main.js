@@ -152,9 +152,9 @@ let prog = new GL.ShaderProgram([vertShad, fragShad])
 
 let f = './box.gltf'
 
-let entity = Entity.fromGLTF(f, {
+let entity = new Entity(prog) /* Entity.fromGLTF(f, {
   material: prog
-})
+})*/
 
 let rafId = 0
 let render = function () {
