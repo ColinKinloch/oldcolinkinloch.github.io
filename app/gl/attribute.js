@@ -14,7 +14,7 @@ let AttributeCurry = (gl) => {
     getLocation (program) {
       this.location = program.getAttribLocation(this.name)
     }
-    pointer (pointer = 0) {
+    pointer () {
       gl.vertexAttribPointer(this.location, this.size, this.type, this.normalized, this.stride, this.offset)
     }
     enable () {

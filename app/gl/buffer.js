@@ -4,7 +4,6 @@ let BufferCurry = (gl) => {
   let Buffer = class {
     constructor (options = {}) {
       _.defaults(this, options, {
-        type: gl.FLOAT,
         binding: gl.ARRAY_BUFFER
       })
       this.buffer = gl.createBuffer()

@@ -26,7 +26,6 @@ let EntityCurry = (gl) => {
       this.attribLocations = {}
 
       this.buffers['normal'] = this.buffers['position'] = new Buffer()
-      this.buffers['position'].bind()
       this.buffers['position'].bufferData(new Float32Array([
         1, 1, 1,
         0, 1, 0,
@@ -80,10 +79,8 @@ let EntityCurry = (gl) => {
 
       this.buffers['index'] = new Buffer({
         binding: gl.ELEMENT_ARRAY_BUFFER,
-        type: gl.UNSIGNED_SHORT,
         count: 36
       })
-      this.buffers['index'].bind()
       this.buffers['index'].bufferData(new Uint16Array([
         // Top
         0, 1, 2,
@@ -152,7 +149,7 @@ let EntityCurry = (gl) => {
       gl.vertexAttribPointer(this.attribLocations['normal'], 3, gl.FLOAT, false, 12, 0)
       */
       for (let attrib in this.material.attribs) {
-        this.buffers[this.material.attribs[attrib].name].bind()
+        this.buffers[attrib].bind()
         this.material.attribs[attrib].pointer()
       }
 
@@ -221,22 +218,9 @@ let EntityCurry = (gl) => {
                   }
                   let offset = desc.byteOffset
                   let length = desc.byteLength
-                  let buff = arrayBuffer.slice(offset, length - offset)
                   let vbo = new Buffer({binding: target})
-                  vbo.bufferData(buff)
-                  res({
-                    vbo: vbo,
-                    buffer: buff,
-                    target: target,
-                    length: desc.byteLength,
-                    count: desc.count
-                  })
-                  /* res(new DataView(
-                      arrayBuffer,
-                      desc.byteOffset,
-                      desc.byteLength
-                    )
-                  )*/
+                  vbo.bufferData(new DataView(arrayBuffer, offset, length))
+                  res(vbo)
                 })
               })
             )
@@ -298,24 +282,11 @@ let EntityCurry = (gl) => {
             for (let prim of desc.primitives) {
               get('accessor', prim.indices)
               .then((accessor) => {
-                let idBuff = entity.buffers['index'] = accessor.vbo
-                /*
-                let name = 'index'
-                entity.buffers[name] = accessor.vbo
-                console.warn(name, accessor)
-                let a = accessor.attrib
-                a.name = name
-                a.getLocation(entity.material)
-                entity.material.attribs[name] = a
-                */
+                console.log(accessor.vbo)
+                entity.buffers['index'] = accessor.vbo
               })
               get('accessor', prim.attributes.POSITION)
               .then((accessor) => {
-                /*
-                let posBuff = entity.buffers['position'] = gl.createBuffer()
-                gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
-                gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
-                */
                 let name = 'position'
                 entity.buffers[name] = accessor.vbo
                 console.warn(name, accessor)
@@ -326,18 +297,13 @@ let EntityCurry = (gl) => {
               })
               get('accessor', prim.attributes.NORMAL)
               .then((accessor) => {
-                /*
-                let posBuff = entity.buffers['normal'] = gl.createBuffer()
-                gl.bindBuffer(gl.ARRAY_BUFFER, posBuff)
-                gl.bufferData(gl.ARRAY_BUFFER, accessor.array, gl.STATIC_DRAW)
-                */
                 let name = 'normal'
-                entity.buffers[name] = accessor.vbo
+                //entity.buffers[name] = accessor.vbo
                 console.warn(name, accessor)
                 let a = accessor.attrib
                 a.name = name
                 a.getLocation(entity.material)
-                entity.material.attribs[name] = a
+                //entity.material.attribs[name] = a
               })
             }
             return true
@@ -359,11 +325,8 @@ let EntityCurry = (gl) => {
             console.log(`Accessor "${id}"`, desc)
             add('accessor', id,
               get('bufferView', desc.bufferView)
-              .then((data) => {
+              .then((vbo) => {
                 return new Promise((res, rej) => {
-                  let bO = desc.byteOffset
-                  let len = data.length
-                  let c = desc.count
                   let l = 1
                   switch (desc.type) {
                     case 'SCALAR':
@@ -405,7 +368,6 @@ let EntityCurry = (gl) => {
                     case 5126: { // FLOAT
                       // array = new Float32Array(data.buffer, bO, l * c)
                       type = gl.FLOAT
-                      console.warn(array)
                       break
                     }
                     default: {
@@ -419,12 +381,11 @@ let EntityCurry = (gl) => {
                     stride: desc.byteStride,
                     offset: desc.byteOffset
                   })
+                  console.log(attrib)
+                  vbo.count = desc.count
                   res({
-                    vbo: data.vbo,
-                    attrib: attrib,
-                    array: array,
-                    offset: desc.byteOffset,
-                    stride: desc.byteStride
+                    vbo: vbo,
+                    attrib: attrib
                   })
                 })
               })
