@@ -207,19 +207,19 @@ let EntityCurry = (gl) => {
               .then((arrayBuffer) => {
                 console.log('Create DataView', id)
                 return new Promise((res) => {
-                  let target = 0
+                  let target
                   switch (desc.target) {
                     case 34962: { // ARRAY_BUFFER
                       target = gl.ARRAY_BUFFER
+                      break
                     }
                     case 34963: { // ELEMENT_ARRAY_BUFFER
                       target = gl.ELEMENT_ARRAY_BUFFER
+                      break
                     }
                   }
-                  let offset = desc.byteOffset
-                  let length = desc.byteLength
                   let vbo = new Buffer({binding: target})
-                  vbo.bufferData(new DataView(arrayBuffer, offset, length))
+                  vbo.bufferData(arrayBuffer.slice(desc.byteOffset, desc.byteLength))
                   res(vbo)
                 })
               })
@@ -298,12 +298,12 @@ let EntityCurry = (gl) => {
               get('accessor', prim.attributes.NORMAL)
               .then((accessor) => {
                 let name = 'normal'
-                //entity.buffers[name] = accessor.vbo
+                entity.buffers[name] = accessor.vbo
                 console.warn(name, accessor)
                 let a = accessor.attrib
                 a.name = name
                 a.getLocation(entity.material)
-                //entity.material.attribs[name] = a
+                entity.material.attribs[name] = a
               })
             }
             return true
