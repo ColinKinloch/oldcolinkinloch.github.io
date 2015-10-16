@@ -1,0 +1,340 @@
+{
+    "accessors": {
+        "accessor_16": {
+            "bufferView": "bufferView_42",
+            "byteOffset": 0,
+            "byteStride": 0,
+            "componentType": 5123,
+            "count": 144,
+            "type": "SCALAR"
+        },
+        "accessor_18": {
+            "bufferView": "bufferView_43",
+            "byteOffset": 0,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 102,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        },
+        "accessor_20": {
+            "bufferView": "bufferView_43",
+            "byteOffset": 1224,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 102,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        },
+        "accessor_36": {
+            "bufferView": "bufferView_42",
+            "byteOffset": 288,
+            "byteStride": 0,
+            "componentType": 5123,
+            "count": 144,
+            "type": "SCALAR"
+        },
+        "accessor_38": {
+            "bufferView": "bufferView_43",
+            "byteOffset": 2448,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 102,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        },
+        "accessor_40": {
+            "bufferView": "bufferView_43",
+            "byteOffset": 3672,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 102,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        }
+    },
+    "animations": {},
+    "asset": {
+        "generator": "collada2gltf@",
+        "premultipliedAlpha": true,
+        "profile": "WebGL 1.0.2",
+        "version": 0.8
+    },
+    "bufferViews": {
+        "bufferView_42": {
+            "buffer": "morespike",
+            "byteLength": 576,
+            "byteOffset": 0,
+            "target": 34963
+        },
+        "bufferView_43": {
+            "buffer": "morespike",
+            "byteLength": 4896,
+            "byteOffset": 576,
+            "target": 34962
+        }
+    },
+    "buffers": {
+        "morespike": {
+            "byteLength": 5472,
+            "type": "arraybuffer",
+            "uri": "morespike.bin"
+        }
+    },
+    "materials": {
+        "__glTF__defaultMaterial0": {
+            "instanceTechnique": {
+                "technique": "technique0",
+                "values": {
+                    "diffuse": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            },
+            "name": "__glTF__defaultMaterial0"
+        }
+    },
+    "meshes": {
+        "Cube_001-mesh": {
+            "name": "Cube.001",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_20",
+                        "POSITION": "accessor_18"
+                    },
+                    "indices": "accessor_16",
+                    "material": "__glTF__defaultMaterial0",
+                    "primitive": 4
+                }
+            ]
+        },
+        "Cube_002-mesh": {
+            "name": "Cube.002",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_40",
+                        "POSITION": "accessor_38"
+                    },
+                    "indices": "accessor_36",
+                    "material": "__glTF__defaultMaterial0",
+                    "primitive": 4
+                }
+            ]
+        }
+    },
+    "nodes": {
+        "Cube": {
+            "children": [],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "meshes": [
+                "Cube_001-mesh"
+            ],
+            "name": "Cube"
+        },
+        "Cube_001": {
+            "children": [],
+            "matrix": [
+                0.707107,
+                0.5,
+                -0.5,
+                0,
+                -4.36258e-08,
+                0.707107,
+                0.707107,
+                0,
+                0.707107,
+                -0.5,
+                0.5,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "meshes": [
+                "Cube_002-mesh"
+            ],
+            "name": "Cube_001"
+        },
+        "node_2": {
+            "children": [
+                "Cube",
+                "Cube_001"
+            ],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -1,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "name": "Y_UP_Transform"
+        }
+    },
+    "programs": {
+        "program_0": {
+            "attributes": [
+                "a_normal",
+                "a_position"
+            ],
+            "fragmentShader": "morespike0FS",
+            "vertexShader": "morespike0VS"
+        }
+    },
+    "scene": "defaultScene",
+    "scenes": {
+        "defaultScene": {
+            "nodes": [
+                "node_2"
+            ]
+        }
+    },
+    "shaders": {
+        "morespike0FS": {
+            "type": 35632,
+            "uri": "morespike0FS.glsl"
+        },
+        "morespike0VS": {
+            "type": 35633,
+            "uri": "morespike0VS.glsl"
+        }
+    },
+    "skins": {},
+    "techniques": {
+        "technique0": {
+            "parameters": {
+                "diffuse": {
+                    "type": 35666
+                },
+                "modelViewMatrix": {
+                    "semantic": "MODELVIEW",
+                    "type": 35676
+                },
+                "normal": {
+                    "semantic": "NORMAL",
+                    "type": 35665
+                },
+                "normalMatrix": {
+                    "semantic": "MODELVIEWINVERSETRANSPOSE",
+                    "type": 35675
+                },
+                "position": {
+                    "semantic": "POSITION",
+                    "type": 35665
+                },
+                "projectionMatrix": {
+                    "semantic": "PROJECTION",
+                    "type": 35676
+                }
+            },
+            "pass": "defaultPass",
+            "passes": {
+                "defaultPass": {
+                    "details": {
+                        "commonProfile": {
+                            "extras": {
+                                "doubleSided": false
+                            },
+                            "lightingModel": "Phong",
+                            "parameters": [
+                                "diffuse",
+                                "modelViewMatrix",
+                                "normalMatrix",
+                                "projectionMatrix"
+                            ]
+                        },
+                        "type": "COLLADA-1.4.1/commonProfile"
+                    },
+                    "instanceProgram": {
+                        "attributes": {
+                            "a_normal": "normal",
+                            "a_position": "position"
+                        },
+                        "program": "program_0",
+                        "uniforms": {
+                            "u_diffuse": "diffuse",
+                            "u_modelViewMatrix": "modelViewMatrix",
+                            "u_normalMatrix": "normalMatrix",
+                            "u_projectionMatrix": "projectionMatrix"
+                        }
+                    },
+                    "states": {
+                        "enable": [
+                            2884,
+                            2929
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

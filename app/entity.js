@@ -157,11 +157,9 @@ let EntityCurry = (gl) => {
       gl.uniformMatrix4fv(this.uniformLocations['projection'], false, this.uniforms['projection'])
       gl.uniformMatrix4fv(this.uniformLocations['modelView'], false, this.uniforms['modelView'])
 
-      // for (let a in this.attribLocations) gl.enableVertexAttribArray(this.attribLocations[a])
       for (let attrib in this.material.attribs) this.material.attribs[attrib].enable()
       gl.drawElements(gl.TRIANGLES, this.buffers['index'].count, gl.UNSIGNED_SHORT, 0)
       for (let attrib in this.material.attribs) this.material.attribs[attrib].disable()
-      // for (let a in this.attribLocations) gl.disableVertexAttribArray(this.attribLocations[a])
     }
     static fromGLTF (path, options) {
       let entity = new Entity(options.material)

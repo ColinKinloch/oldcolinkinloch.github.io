@@ -1,0 +1,256 @@
+{
+    "accessors": {
+        "accessor_16": {
+            "bufferView": "bufferView_22",
+            "byteOffset": 0,
+            "byteStride": 0,
+            "componentType": 5123,
+            "count": 144,
+            "type": "SCALAR"
+        },
+        "accessor_18": {
+            "bufferView": "bufferView_23",
+            "byteOffset": 0,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 102,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        },
+        "accessor_20": {
+            "bufferView": "bufferView_23",
+            "byteOffset": 1224,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 102,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        }
+    },
+    "animations": {},
+    "asset": {
+        "generator": "collada2gltf@",
+        "premultipliedAlpha": true,
+        "profile": "WebGL 1.0.2",
+        "version": 0.8
+    },
+    "bufferViews": {
+        "bufferView_22": {
+            "buffer": "spike",
+            "byteLength": 288,
+            "byteOffset": 0,
+            "target": 34963
+        },
+        "bufferView_23": {
+            "buffer": "spike",
+            "byteLength": 2448,
+            "byteOffset": 288,
+            "target": 34962
+        }
+    },
+    "buffers": {
+        "spike": {
+            "byteLength": 2736,
+            "type": "arraybuffer",
+            "uri": "spike.bin"
+        }
+    },
+    "materials": {
+        "__glTF__defaultMaterial0": {
+            "instanceTechnique": {
+                "technique": "technique0",
+                "values": {
+                    "diffuse": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            },
+            "name": "__glTF__defaultMaterial0"
+        }
+    },
+    "meshes": {
+        "Cube_001-mesh": {
+            "name": "Cube.001",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_20",
+                        "POSITION": "accessor_18"
+                    },
+                    "indices": "accessor_16",
+                    "material": "__glTF__defaultMaterial0",
+                    "primitive": 4
+                }
+            ]
+        }
+    },
+    "nodes": {
+        "Cube": {
+            "children": [],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "meshes": [
+                "Cube_001-mesh"
+            ],
+            "name": "Cube"
+        },
+        "node_1": {
+            "children": [
+                "Cube"
+            ],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -1,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "name": "Y_UP_Transform"
+        }
+    },
+    "programs": {
+        "program_0": {
+            "attributes": [
+                "a_normal",
+                "a_position"
+            ],
+            "fragmentShader": "spike0FS",
+            "vertexShader": "spike0VS"
+        }
+    },
+    "scene": "defaultScene",
+    "scenes": {
+        "defaultScene": {
+            "nodes": [
+                "node_1"
+            ]
+        }
+    },
+    "shaders": {
+        "spike0FS": {
+            "type": 35632,
+            "uri": "spike0FS.glsl"
+        },
+        "spike0VS": {
+            "type": 35633,
+            "uri": "spike0VS.glsl"
+        }
+    },
+    "skins": {},
+    "techniques": {
+        "technique0": {
+            "parameters": {
+                "diffuse": {
+                    "type": 35666
+                },
+                "modelViewMatrix": {
+                    "semantic": "MODELVIEW",
+                    "type": 35676
+                },
+                "normal": {
+                    "semantic": "NORMAL",
+                    "type": 35665
+                },
+                "normalMatrix": {
+                    "semantic": "MODELVIEWINVERSETRANSPOSE",
+                    "type": 35675
+                },
+                "position": {
+                    "semantic": "POSITION",
+                    "type": 35665
+                },
+                "projectionMatrix": {
+                    "semantic": "PROJECTION",
+                    "type": 35676
+                }
+            },
+            "pass": "defaultPass",
+            "passes": {
+                "defaultPass": {
+                    "details": {
+                        "commonProfile": {
+                            "extras": {
+                                "doubleSided": false
+                            },
+                            "lightingModel": "Phong",
+                            "parameters": [
+                                "diffuse",
+                                "modelViewMatrix",
+                                "normalMatrix",
+                                "projectionMatrix"
+                            ]
+                        },
+                        "type": "COLLADA-1.4.1/commonProfile"
+                    },
+                    "instanceProgram": {
+                        "attributes": {
+                            "a_normal": "normal",
+                            "a_position": "position"
+                        },
+                        "program": "program_0",
+                        "uniforms": {
+                            "u_diffuse": "diffuse",
+                            "u_modelViewMatrix": "modelViewMatrix",
+                            "u_normalMatrix": "normalMatrix",
+                            "u_projectionMatrix": "projectionMatrix"
+                        }
+                    },
+                    "states": {
+                        "enable": [
+                            2884,
+                            2929
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

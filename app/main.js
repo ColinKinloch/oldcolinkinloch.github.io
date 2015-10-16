@@ -150,7 +150,7 @@ let fragShad = new GL.Shader(gl.FRAGMENT_SHADER, frag)
 
 let prog = new GL.ShaderProgram([vertShad, fragShad])
 
-let f = './duck.gltf'
+let f = './morespike.gltf'
 
 let entity = Entity.fromGLTF(f, {
   material: prog
