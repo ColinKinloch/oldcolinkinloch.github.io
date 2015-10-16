@@ -219,7 +219,7 @@ let EntityCurry = (gl) => {
                     }
                   }
                   let vbo = new Buffer({binding: target})
-                  vbo.bufferData(arrayBuffer.slice(desc.byteOffset, desc.byteLength))
+                  vbo.bufferData(arrayBuffer.slice(desc.byteOffset, desc.byteOffset + desc.byteLength))
                   res(vbo)
                 })
               })
@@ -342,31 +342,25 @@ let EntityCurry = (gl) => {
                       l = 4
                       break
                   }
-                  let array
                   let type
                   switch (desc.componentType) {
                     case 5120: { // BYTE
-                      // array = new Int8Array(data.buffer, bO, l * c)
                       type = gl.BYTE
                       break
                     }
                     case 5121: { // UNSIGNED_BYTE
-                      // array = new Uint8Array(data.buffer, bO, l * c)
                       type = gl.UNSIGNED_BYTE
                       break
                     }
                     case 5122: { // SHORT
-                      // array = new Int16Array(data.buffer, bO, l * c)
                       type = gl.SHORT
                       break
                     }
                     case 5123: { // UNSIGNED_SHORT
-                      // array = new Uint16Array(data.buffer, bO, l * c)
                       type = gl.UNSIGNED_SHORT
                       break
                     }
                     case 5126: { // FLOAT
-                      // array = new Float32Array(data.buffer, bO, l * c)
                       type = gl.FLOAT
                       break
                     }
@@ -381,7 +375,6 @@ let EntityCurry = (gl) => {
                     stride: desc.byteStride,
                     offset: desc.byteOffset
                   })
-                  console.log(attrib)
                   vbo.count = desc.count
                   res({
                     vbo: vbo,
