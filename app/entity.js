@@ -5,6 +5,7 @@ import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
 import BufferCurry from './gl/buffer.js'
 import AttributeCurry from './gl/attribute.js'
+import {Vector3, Quaternion} from './vector.js'
 
 let EntityCurry = (gl) => {
   let Shader = ShaderCurry(gl)
@@ -102,6 +103,9 @@ let EntityCurry = (gl) => {
         20, 22, 23
       ]))
 
+      this.position = new Vector3(0, 0, -5)
+      this.rotation = new Quaternion()
+
       this.uniforms['normal'] = glm.mat3.create()
       this.uniforms['projection'] = glm.mat4.create()
       this.uniforms['modelView'] = glm.mat4.create()
@@ -128,9 +132,12 @@ let EntityCurry = (gl) => {
       let t = (performance.timing.navigationStart + performance.now()) / 10000
 
       let mv = this.uniforms['modelView']
-      glm.mat4.identity(mv)
-      glm.mat4.translate(mv, mv, [0, 0, -5])
-      glm.mat4.rotate(mv, mv, t * 10, [0.5, Math.tan(t) * 3, Math.sin(t)])
+      this.rotation.rotateX(0.000005 * t)
+      this.rotation.rotateY(0.000005 * t)
+      this.rotation.rotateZ(0.000005 * t)
+      glm.mat4.fromRotationTranslation(mv, this.rotation.vec, this.position.vec)
+      // glm.mat4.translate(mv, mv, this.position.vec)
+      // glm.mat4.rotate(mv, mv, t * 10, [0.5, Math.tan(t) * 3, Math.sin(t)])
       // glm.mat4.scale(mv, mv, [0.25, 3, 1.5])
 
       let normal = this.uniforms['normal']
