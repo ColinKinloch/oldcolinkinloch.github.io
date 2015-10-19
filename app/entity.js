@@ -5,7 +5,7 @@ import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
 import BufferCurry from './gl/buffer.js'
 import AttributeCurry from './gl/attribute.js'
-import {Vector3, Quaternion} from './vector.js'
+import {Vector3, Quaternion, Matrix4} from './vector.js'
 
 let EntityCurry = (gl) => {
   let Shader = ShaderCurry(gl)
@@ -132,9 +132,11 @@ let EntityCurry = (gl) => {
       let t = (performance.timing.navigationStart + performance.now()) / 10000
 
       let mv = this.uniforms['modelView']
-      this.rotation.rotateX(0.000005 * t)
-      this.rotation.rotateY(0.000005 * t)
-      this.rotation.rotateZ(0.000005 * t)
+      this.rotation.x = Math.sin(5 * t)
+      this.rotation.y = Math.tan(t * 7)
+      this.rotation.z = Math.sin(t)
+      this.rotation.normalize()
+      this.rotation.calculateW()
       glm.mat4.fromRotationTranslation(mv, this.rotation.vec, this.position.vec)
       // glm.mat4.translate(mv, mv, this.position.vec)
       // glm.mat4.rotate(mv, mv, t * 10, [0.5, Math.tan(t) * 3, Math.sin(t)])
@@ -167,8 +169,17 @@ let EntityCurry = (gl) => {
       for (let attrib in this.material.attribs) this.material.attribs[attrib].enable()
       gl.drawElements(gl.TRIANGLES, this.buffers['index'].count, gl.UNSIGNED_SHORT, 0)
       for (let attrib in this.material.attribs) this.material.attribs[attrib].disable()
+
+      this.traverse((node) => {
+        node.draw(projection)
+      })
     }
-    static fromGLTF (path, options) {
+    traverse (cb) {
+      for (let node of this.children) {
+        cb(node)
+      }
+    }
+    static fromGLTFPath (path, options) {
       let entity = new Entity(options.material)
       let promises = {
       }
@@ -317,11 +328,22 @@ let EntityCurry = (gl) => {
         handleNode: {
           value: (id, desc) => {
             console.log(`Node "${id}"`, desc)
+            add('node', id, new Promise((res) => {
+              res(id)
+            }))
+            return true
           }
         },
         handleScene: {
           value: (id, desc) => {
             console.log(`Scene "${id}"`, desc)
+            for (let n of desc.nodes) {
+              get('node', n)
+              .then((node) => {
+                console.log(node)
+                entity.children.push(new Entity())
+              })
+            }
             return true
           }
         },

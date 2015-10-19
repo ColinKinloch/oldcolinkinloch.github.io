@@ -69,8 +69,28 @@ class Quaternion extends Vector4 {
   rotateZ (rad) {
     glm.quat.rotateZ(this.vec, this.vec, rad)
   }
+  calculateW () {
+    glm.quat.calculateW(this.vec, this.vec)
+  }
   normalize () {
     glm.quat.normalize(this.vec, this.vec)
   }
 }
-export {Vector2, Vector3, Vector4, Quaternion}
+class Matrix4 {
+  constructor () {
+    this.reset()
+  }
+  reset () {
+    this.mat = glm.mat4.create()
+  }
+  multiply (b) {
+    glm.mat4.multiply(this.mat, this.mat, b.mat)
+  }
+  static multiplyMatrices (a, b) {
+    this.out = new Matrix4()
+    glm.mat4.muliply(this.out.mat, a.mat, b.mat)
+    return this.out
+  }
+}
+
+export {Vector2, Vector3, Vector4, Quaternion, Matrix4}
