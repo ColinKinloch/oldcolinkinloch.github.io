@@ -167,11 +167,12 @@ let EntityCurry = (gl) => {
       gl.uniformMatrix4fv(this.uniformLocations['modelView'], false, this.uniforms['modelView'])
 
       for (let attrib in this.material.attribs) this.material.attribs[attrib].enable()
-      gl.drawElements(gl.TRIANGLES, this.buffers['index'].count, gl.UNSIGNED_SHORT, 0)
+      if (this.buffers['index'].count) gl.drawElements(gl.TRIANGLES, this.buffers['index'].count, gl.UNSIGNED_SHORT, 0)
       for (let attrib in this.material.attribs) this.material.attribs[attrib].disable()
 
       this.traverse((node) => {
-        node.draw(projection)
+        // console.log(node)
+        // node.draw(projection)
       })
     }
     traverse (cb) {
@@ -329,7 +330,12 @@ let EntityCurry = (gl) => {
           value: (id, desc) => {
             console.log(`Node "${id}"`, desc)
             add('node', id, new Promise((res) => {
-              res(id)
+              if (!_.isUndefined(desc.light) || !_.isUndefined(desc.camera)) {
+                res(undefined)
+              } else {
+                let node = new Entity(entity.material)
+                res(node)
+              }
             }))
             return true
           }
@@ -341,7 +347,7 @@ let EntityCurry = (gl) => {
               get('node', n)
               .then((node) => {
                 console.log(node)
-                entity.children.push(new Entity())
+                if (!_.isUndefined(node)) entity.children.push(node)
               })
             }
             return true
