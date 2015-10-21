@@ -130,7 +130,13 @@ let resize = function (w, h) {
   el.height = h
   gl.viewport(0, 0, w, h)
   glm.mat4.perspective(projection, 45, w / h, 3, 11)
-  // glm.mat4.ortho(projection, -5, 5, -5, 5, -10, 10)
+  /*
+  let s = 0.005
+  let hw = (s * w) / 2
+  let hh = (s * h) / 2
+  glm.mat4.ortho(projection, -hw, hw, -hh, hh, -10, 10)
+  */
+  glm.mat4.translate(projection, projection, [0, 0, -5])
   let scale = 1 // 0.125
   depth.resize(w * scale, h * scale)
   deres.resize(w, h)

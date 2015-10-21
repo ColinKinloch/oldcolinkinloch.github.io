@@ -2,9 +2,11 @@ import Node3DCurry from './gl/node3d.js'
 
 let MeshCurry = (gl) => {
   let Node3D = Node3DCurry(gl)
-  class Mesh extends Node3D {
-    constructor () {
+  let Mesh = class extends Node3D {
+    constructor (geometry, material) {
       super()
+      this.geometry = geometry
+      this.material = material
     }
   }
   return Mesh

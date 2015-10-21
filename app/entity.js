@@ -5,7 +5,7 @@ import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
 import BufferCurry from './gl/buffer.js'
 import AttributeCurry from './gl/attribute.js'
-import {Vector3, Quaternion, Matrix4} from './vector.js'
+import {Vector3, Quaternion, Matrix4} from './glm'
 
 let EntityCurry = (gl) => {
   let Shader = ShaderCurry(gl)
@@ -103,7 +103,7 @@ let EntityCurry = (gl) => {
         20, 22, 23
       ]))
 
-      this.position = new Vector3(0, 0, -5)
+      this.position = new Vector3()
       this.rotation = new Quaternion()
 
       this.uniforms['normal'] = glm.mat3.create()

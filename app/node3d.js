@@ -1,7 +1,7 @@
-import {Vector3, Quaternion, Matrix4} from './vector.js'
+import {Vector3, Quaternion, Matrix4} from './glm'
 
 let Node3DCurry = (gl) => {
-  class Node3D {
+  let Node3D = class {
     constructor () {
       this.position = new Vector3()
       this.rotation = new Quaternion()
