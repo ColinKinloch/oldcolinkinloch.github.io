@@ -1,6 +1,6 @@
 #version 300 es
 
-#pragma glslify: deres = require(./deres.glsl)
+#pragma glslify: deres = require(./lib/deres.glsl)
 
 in vec3 position;
 in vec3 normal;

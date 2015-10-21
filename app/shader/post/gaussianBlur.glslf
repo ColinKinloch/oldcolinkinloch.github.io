@@ -2,7 +2,7 @@
 precision mediump float;
 
 const int v = 3;
-#pragma glslify: gaussian = require(./gaussian.glsl)
+#pragma glslify: gaussian = require(../lib/gaussian.glsl)
 
 uniform sampler2D frame;
 uniform sampler2D depth;

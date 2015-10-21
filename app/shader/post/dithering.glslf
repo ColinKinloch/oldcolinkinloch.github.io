@@ -1,8 +1,8 @@
 #version 300 es
 precision mediump float;
 
-#pragma glslify: deres = require(./deres.glsl)
-#pragma glslify: bayerer = require(./bayerer.glsl)
+#pragma glslify: deres = require(../lib/deres.glsl)
+#pragma glslify: bayerer = require(../lib/bayerer.glsl)
 
 uniform sampler2D frame;
 uniform sampler2D depth;

@@ -1,7 +1,7 @@
 #version 300 es
 precision mediump float;
 
-#pragma glslify: deres = require(./deres.glsl)
+#pragma glslify: deres = require(../lib/deres.glsl)
 
 uniform sampler2D frame;
 uniform sampler2D depth;

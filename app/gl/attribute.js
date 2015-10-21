@@ -1,4 +1,5 @@
 import _ from 'lodash'
+
 let AttributeCurry = (gl) => {
   let Attribute = class {
     constructor (name, opts = {}) {

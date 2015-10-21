@@ -5,7 +5,8 @@ import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
 import BufferCurry from './gl/buffer.js'
 import AttributeCurry from './gl/attribute.js'
-import {Vector3, Quaternion, Matrix4} from './glm'
+import {Vector3, Quaternion} from './glm'
+import Node3D from './node3d.js'
 
 let EntityCurry = (gl) => {
   let Shader = ShaderCurry(gl)
@@ -13,10 +14,10 @@ let EntityCurry = (gl) => {
   let Buffer = BufferCurry(gl)
   let Attribute = AttributeCurry(gl)
 
-  let Entity = class {
+  let Entity = class extends Node3D {
     constructor (material) {
+      super()
       this.material = material
-      this.children = []
 
       this.arrayBuffers = {}
       this.dataViews = {}
@@ -103,9 +104,6 @@ let EntityCurry = (gl) => {
         20, 22, 23
       ]))
 
-      this.position = new Vector3()
-      this.rotation = new Quaternion()
-
       this.uniforms['normal'] = glm.mat3.create()
       this.uniforms['projection'] = glm.mat4.create()
       this.uniforms['modelView'] = glm.mat4.create()
@@ -131,19 +129,20 @@ let EntityCurry = (gl) => {
     draw (projection) {
       let t = (performance.timing.navigationStart + performance.now()) / 10000
 
-      let mv = this.uniforms['modelView']
       this.rotation.x = Math.sin(5 * t)
       this.rotation.y = Math.tan(t * 7)
       this.rotation.z = Math.sin(t)
       this.rotation.normalize()
       this.rotation.calculateW()
-      glm.mat4.fromRotationTranslation(mv, this.rotation.vec, this.position.vec)
+
+      this.updateMatrix()
+      this.uniforms['modelView'] = this.matrix.mat
       // glm.mat4.translate(mv, mv, this.position.vec)
       // glm.mat4.rotate(mv, mv, t * 10, [0.5, Math.tan(t) * 3, Math.sin(t)])
       // glm.mat4.scale(mv, mv, [0.25, 3, 1.5])
 
       let normal = this.uniforms['normal']
-      glm.mat3.normalFromMat4(normal, mv)
+      glm.mat3.normalFromMat4(normal, this.matrix.mat)
 
       this.uniforms['projection'] = projection
 

@@ -5,8 +5,8 @@ import glm from 'gl-matrix'
 
 import GLCurry from './gl'
 import EntityCurry from './entity.js'
-import vert from './main.glslv'
-import frag from './main.glslf'
+import vert from './shader/main.glslv'
+import frag from './shader/main.glslf'
 
 let projection = glm.mat4.create()
 
@@ -101,23 +101,23 @@ let buffResize = (width, height) => {
 }
 */
 
-let blurFragSrc = require('./gaussianBlur.glslf')
+let blurFragSrc = require('./shader/post/gaussianBlur.glslf')
 let blurFrag = new GL.Shader(gl.FRAGMENT_SHADER, blurFragSrc)
 let blur = new GL.Post(blurFrag)
 
-let ditherFragSrc = require('./dithering.glslf')
+let ditherFragSrc = require('./shader/post/dithering.glslf')
 let ditherFrag = new GL.Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
 let dither = new GL.Post(ditherFrag)
 
-let deresFragSrc = require('./deres.glslf')
+let deresFragSrc = require('./shader/post/deres.glslf')
 let deresFrag = new GL.Shader(gl.FRAGMENT_SHADER, deresFragSrc)
 let deres = new GL.Post(deresFrag)
 
-let depthFragSrc = require('./shadeDepth.glslf')
+let depthFragSrc = require('./shader/post/shadeDepth.glslf')
 let depthFrag = new GL.Shader(gl.FRAGMENT_SHADER, depthFragSrc)
 let depth = new GL.Post(depthFrag)
 
-let drawFragSrc = require('./draw.glslf')
+let drawFragSrc = require('./shader/post/draw.glslf')
 let drawFrag = new GL.Shader(gl.FRAGMENT_SHADER, drawFragSrc)
 let draw = new GL.Post(drawFrag)
 

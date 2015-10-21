@@ -1,29 +1,32 @@
 import glTFParser from '../lib/glTF/loaders/glTF-parser.js'
+import _ from 'lodash'
 
-let glTFLoader = Object.create(glTFParser.glTFParser, {
-  handleLoadCompleted: {
-    value: (success) => {
-      if (success) {
-        console.log('Loaded glTF!')
-      } else {
-        console.error('Failed to load glTF!')
+let add = (data, type, id, promise) => {
+  if (!_.isObject(data.promises)) data.promises = {}
+  _.defaultsDeep(data.promises,
+    {
+      [type]: {
+        [id]: promise
       }
     }
-  },
+  )
+}
+let get = (data, type, id) => {
+  return data.promises[type][id]
+}
+
+let glTFLoader = Object.create(glTFParser.glTFParser, {
   handleBuffer: {
     value: (id, desc, data) => {
-      let req = new Request(desc.uri)
-      let fetchPromise = fetch(req)
-      data.promises.push(fetchPromise)
-      fetchPromise.then((res) => {
-        let bufferPromise = res.arrayBuffer()
-        data.promises.push(bufferPromise)
-        console.log(data)
-        bufferPromise.then((buffer) => {
-          data.buffers.push(buffer)
-        })
-      })
       console.log(`Buffer "${id}":`, desc)
+      let req = new Request(desc.uri)
+      // data.promises.push(fetchPromise)
+      add(data, 'buffer', id,
+        fetch(req)
+        .then((res) => {
+          return res.arrayBuffer()
+        })
+      )
       return true
     }
   },
@@ -128,7 +131,17 @@ let glTFLoader = Object.create(glTFParser.glTFParser, {
       console.log(`Video "${id}"`, desc)
       return true
     }
+  },
+  handleLoadCompleted: {
+    value: (success) => {
+      if (success) {
+        console.log('Loaded glTF!')
+      } else {
+        console.error('Failed to load glTF!')
+      }
+    }
   }
 })
 
+export {PromiseList}
 export default glTFLoader
