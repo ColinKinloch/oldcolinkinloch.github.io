@@ -33,24 +33,69 @@ let glTFLoader = Object.create(glTFParser.glTFParser, {
   handleBufferView: {
     value: (id, desc, data) => {
       console.log(`BufferView "${id}"`, desc)
+      add(data, 'bufferView', id,
+        get(data, 'buffer', desc.buffer)
+        .then((arrayBuffer) => {
+          return new Promise((res) => {
+            let target
+            switch (desc.target) {
+              case 34962: { // ARRAY_BUFFER
+                target = gl.ARRAY_BUFFER
+                break
+              }
+              case 34963: { // ELEMENT_ARRAY_BUFFER
+                target = gl.ELEMENT_ARRAY_BUFFER
+                break
+              }
+            }
+            let vbo = new Buffer({binding: target})
+            vbo.bufferData(arrayBuffer.slice(desc.byteOffset, desc.byteOffset + desc.byteLength))
+            res(vbo)
+          })
+        })
+      )
       return true
     }
   },
   handleShader: {
     value: (id, desc, data) => {
       console.log(`Shader "${id}":`, desc)
+      let req = new Request(desc.uri)
+      add(data, 'shader', id,
+        fetch(req)
+        .then((res) => {
+          return res.text()
+        })
+      )
       return true
     }
   },
   handleProgram: {
     value: (id, desc, data) => {
-      console.log(`Shader "${id}":`, desc)
+      console.log(`Program "${id}":`, desc)
+      let vert = get(data, 'shader', desc.vertexShader)
+      let frag = get(data, 'shader', desc.fragmentShader)
+      add(data, 'program', id,
+        Promise.all([vert, frag])
+        .then((shaders) => {
+          return new Promise((req) => {
+            let vertShad = new Shader(gl.VERTEX_SHADER, shaders[0])
+            let fragShad = new Shader(gl.FRAGMENT_SHADER, shaders[1])
+            let program = new ShaderProgram([vertShad, fragShad])
+            req(program)
+          })
+        })
+      )
       return true
     }
   },
   handleTechnique: {
     value: (id, desc, data) => {
-      console.log(`Technique"${id}":`, desc)
+      console.log(`Technique "${id}":`, desc)
+      get(data, 'program', desc.passes.defaultPass.instanceProgram.program)
+      .then((program) => {
+        console.log(program)
+      }
       return true
     }
   },

@@ -274,6 +274,7 @@ let EntityCurry = (gl) => {
                 })
               })
             )
+            return true
           }
         },
         handleTechnique: {
