@@ -19,5 +19,7 @@ void main() {
   vec4 p = texture(frame, screenCoord);
   vec4 pixel = vec4(p.rgb + .7, p.a);
   vec4 dithered = pixel + pixel * bayerer(8, gl_FragCoord.xy);
-  fragmentColour = vec4(deres(dithered.rgb, .7), p.a);
+  pixel = vec4(deres(dithered.rgb, .7), dithered.a);
+  if(pixel.r < 0.5) discard;
+  fragmentColour = pixel;
 }

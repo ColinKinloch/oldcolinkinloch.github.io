@@ -137,7 +137,7 @@ let resize = function (w, h) {
   glm.mat4.ortho(projection, -hw, hw, -hh, hh, -10, 10)
   */
   glm.mat4.translate(projection, projection, [0, 0, -5])
-  let scale = 1 // 0.125
+  let scale = 0.5 // 0.125
   depth.resize(w * scale, h * scale)
   deres.resize(w, h)
   dither.resize(w * scale, h * scale)
