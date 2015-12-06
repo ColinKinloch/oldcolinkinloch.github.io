@@ -1,13 +1,17 @@
+$bg: black;
+$text: gainsboro;
+$link: white;
+
 html {
+  background: $bg url('test.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: $text;
+  display: flex;
+  font-family: serif;
   height: 100%;
   width: 100%;
-  color: gainsboro;
-  font-family: serif;
-  display: flex;
-
-  background: black url('test.png');
-  background-repeat: no-repeat;
-  background-position: center;
 }
 
 body {
@@ -17,21 +21,27 @@ body {
 }
 
 a {
-  color: white;
+  color: $link;
 }
 
-#main {
-  position: fixed;
+.fill {
   left: 0;
+  position: fixed;
   top: 0;
+}
+
+.mid {
   z-index: 2;
+}
+
+.back {
+  z-index: 1;
+}
+
+.front {
+  z-index: 3;
 }
 
 .content {
   flex: 1;
-  z-index: 1;
-}
-
-.foot {
-  z-index: 3;
 }

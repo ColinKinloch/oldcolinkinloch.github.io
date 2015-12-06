@@ -129,13 +129,25 @@ let resize = function (w, h) {
   el.width = w
   el.height = h
   gl.viewport(0, 0, w, h)
-  glm.mat4.perspective(projection, 45, w / h, 3, 11)
-  /*
-  let s = 0.005
+  let r = h / w
+  glm.mat4.perspective(projection, 45, r, 3, 11)
+
+  let s = 2
   let hw = (s * w) / 2
   let hh = (s * h) / 2
+
+  // r = Math.min(h) / Math.max(h)
+  if (w < h) {
+    hh = s * r
+    hw = s
+  }
+  else {
+    hh = s
+    hw = s / r
+  }
+
   glm.mat4.ortho(projection, -hw, hw, -hh, hh, -10, 10)
-  */
+
   glm.mat4.translate(projection, projection, [0, 0, -5])
   let scale = 0.5 // 0.125
   depth.resize(w * scale, h * scale)
