@@ -140,8 +140,7 @@ let resize = function (w, h) {
   if (w < h) {
     hh = s * r
     hw = s
-  }
-  else {
+  } else {
     hh = s
     hw = s / r
   }
