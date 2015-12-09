@@ -1,4 +1,19 @@
-document.querySelector('#year').innerHTML = new Date().getYear()
+let thing = () => {
+  let content = document.querySelector('.content')
+  switch (window.location.hash) {
+    case '#cv/pdf': {
+      require('bundle!./pdf.js')((hi) => {
+        hi(content)
+      })
+      break
+    }
+    default: {
+      while (content.firstChild) content.firstChild.remove()
+    }
+  }
+}
+// window.addEventListener('hashchange', thing)
+// thing()
 
 import _ from 'lodash'
 import glm from 'gl-matrix'

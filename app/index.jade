@@ -2,22 +2,39 @@ html
   head
     title colin.kinlo.ch
     link(rel="stylesheet" href="style.css")
-    link(rel="prefetch" type="application/json" href="SuperMurdoch.gltf")
-    link(rel="prefetch" type="application/octet-stream" href="SuperMurdoch.bin")
   body
-    canvas.fill.mid#main
+    canvas.full.back#main
     header.front
       h1 Colin Kinloch
       nav
-        a(href="./") hello
-        a(href="./") other
-    .content.back
-      //-
-        h1 hello and, welcome to colins personal web-page on the inter-net.
-        p Full spectrum cyber.
-        p Please do not steal.
-    footer.front
-      a(href="http://colin.kinlo.ch") colin
-      span ®
-      span(id="year")
+        a(href="#cv/pdf")
+          span cv
+        a(href="#portfolio")
+          span portfolio
+    .content.mid
+      article.doc.a4.cv
+        section
+          h1 Colin Kinloch MSc
+          p Quick learner suited to an agile development environment. A fast problem solver with an aptitude for research who is exited by JavaScript development and eager to learn.
+        section
+          h2 Qualifications
+          ul
+            li MSc Computer Science
+            li BSc Computing and Mathematics
+      .cv-pdf
+        object(data="ColinKinloch.pdf" type="application/pdf")
+          a(href="ColinKinloch.pdf") CV pdf
+      .stuff
+        p content
+        p more content
+        p and content
+        p more content
+        p and content
+        p more content
+        p and content
+        p more content
+        p and content
+        p more content
+        p and content
+        p more content
     script(src="index.js")
