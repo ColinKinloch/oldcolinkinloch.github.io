@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 let thing = () => {
   let content = document.querySelector('.content')
   switch (window.location.hash) {
@@ -15,7 +17,65 @@ let thing = () => {
 // window.addEventListener('hashchange', thing)
 // thing()
 
-import _ from 'lodash'
+let createLink = (text, href) => {
+  console.log(text)
+  let li = document.createElement('li')
+  let a = document.createElement('a')
+  a.setAttribute('href', href)
+  a.innerHTML = text
+  li.appendChild(a)
+  return li
+}
+
+let repoUrl = 'https://api.github.com/users/ColinKinloch/repos'
+let repoString = sessionStorage.getItem(repoUrl)
+let fillDom = (repos) => {
+  let elCont = document.querySelector('.gh-list')
+  while (elCont.firstChild) elCont.firstChild.remove()
+  let ul = document.createElement('ol')
+  elCont.appendChild(ul)
+  for (let repo of repos) {
+    ul.appendChild(createLink(repo.name, repo.homepage || repo.html_url))
+    console.log(repo)
+  }
+}
+
+if (repoString === null) {
+  fetch(repoUrl)
+  .then((res) => {
+    return res.json()
+  })
+  .then((rawRepos) => {
+    let repos = _(rawRepos)
+    .reject((r) => {
+      return r.fork
+      // r.stargazers_count <= 0
+    })
+    .sortBy((r) => {
+      return Date.parse(r.updated_at)
+    })
+    .sortBy('stargazers_count')
+    .reverse()
+    .splice(0, 10)
+    .value()
+
+    console.log('hey babby')
+
+    sessionStorage.setItem(repoUrl, JSON.stringify(repos))
+
+    fillDom(repos)
+  })
+  .catch((err) => {
+    console.log('Failed to get repos:', err)
+  })
+} else {
+  console.log('STORED')
+  let repos = JSON.parse(repoString)
+  fillDom(repos)
+}
+
+sessionStorage.removeItem(repoUrl)
+
 import glm from 'gl-matrix'
 
 import GLCurry from './gl'
