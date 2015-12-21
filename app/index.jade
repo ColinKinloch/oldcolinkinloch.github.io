@@ -4,14 +4,24 @@ html
     link(rel="stylesheet" href="style.css")
   body
     canvas.full.back#main
-    header.front
+    header.front.fixed
       h1 Colin Kinloch
-      nav
+      nav.main
         a(href="#cv/pdf")
           span cv
         a(href="#portfolio")
           span portfolio
-    .content.mid
+      nav.social
+        a(href="http://www.github.com/ColinKinloch")
+          span.fa.fa-github
+        a(href="http://www.linkedin.com/in/ColinKinloch")
+          span.fa.fa-linkedin-square
+        a(href="mailto:colin@kinlo.ch")
+          span.fa.fa-envelope
+    header
+      //- TODO Remove padding hack
+      h1 &nbsp;
+    main.mid
       article.doc.a4.cv
         section
           h1 Colin Kinloch MSc

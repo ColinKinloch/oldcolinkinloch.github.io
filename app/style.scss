@@ -1,15 +1,21 @@
 $bg: black;
 $text: gainsboro;
 $link: white;
-$head-back: rgba(1, 1, 1, .4);
+$head-back: rgba($bg, .6);
+
+$fa-font-path: './fonts';
+@import './node_modules/font-awesome/scss/font-awesome';
 
 html {
   background: $bg url('test.png');
+  background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   color: $text;
   display: flex;
+  // font-family: sans;
+  font-size: 13pt;
   height: 100%;
   width: 100%;
 }
@@ -23,12 +29,19 @@ body {
 
 a {
   color: $link;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 header {
+  backdrop-filter: blur(6px);
   background: $head-back;
   display: flex;
   flex-direction: row;
+  width: 100%;
 
   h1 {
     margin: 0;
@@ -41,6 +54,12 @@ nav {
   display: flex;
   flex-direction: row;
 
+  font-size: 14pt;
+
+  &.main {
+    flex-grow: 1;
+  }
+
   a {
     align-content: center;
     border-bottom-color: transparent;
@@ -48,13 +67,13 @@ nav {
     border-bottom-width: 1px;
     display: flex;
     padding: 0 10px;
-    text-decoration: none;
 
     &:hover {
       border-bottom-color: $link;
+      text-decoration: none;
     }
 
-    span {
+    * {
       align-self: center;
       display: inline;
     }
@@ -86,6 +105,10 @@ $doc-bg: white;
   top: 0;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .mid {
   z-index: 2;
 }
@@ -98,11 +121,11 @@ $doc-bg: white;
   z-index: 3;
 }
 
-.content {
+main {
   display: flex;
   flex: 1;
   flex-direction: column;
-  overflow-y: auto;
+  //overflow-y: auto;
 
   object {
     flex: 1;

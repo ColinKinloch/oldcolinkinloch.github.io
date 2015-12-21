@@ -22,8 +22,12 @@ gulp.task('jade', () => {
 })
 gulp.task('sass', () => {
   let sass = require('gulp-sass')
+  let autoprefixer = require('gulp-autoprefixer')
   return gulp.src('./app/**/*.scss')
     .pipe(sass())
+    .pipe(autoprefixer({
+      browsers: ['last 2 versions']
+    }))
     .pipe(gulp.dest('dist'))
     .pipe(livereload())
 })
