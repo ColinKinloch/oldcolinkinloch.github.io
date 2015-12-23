@@ -5,7 +5,6 @@ import ShaderCurry from './gl/shader.js'
 import ShaderProgramCurry from './gl/shaderprogram.js'
 import BufferCurry from './gl/buffer.js'
 import AttributeCurry from './gl/attribute.js'
-import {Vector3, Quaternion} from './glm'
 import Node3D from './node3d.js'
 
 let EntityCurry = (gl) => {

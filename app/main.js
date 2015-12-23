@@ -1,5 +1,6 @@
 import _ from 'lodash'
 
+/*
 let thing = () => {
   let content = document.querySelector('.content')
   switch (window.location.hash) {
@@ -14,6 +15,7 @@ let thing = () => {
     }
   }
 }
+*/
 // window.addEventListener('hashchange', thing)
 // thing()
 
@@ -252,10 +254,6 @@ let entity = Entity.fromGLTFPath('./duck.gltf', {
 let rafId = 0
 let render = function () {
   rafId = requestAnimationFrame(render)
-
-  let t = performance.timing.navigationStart + performance.now() / 10000
-  let t2 = (t * 100) % 1
-  let t3 = 1 / Math.cos(t * 0.3)
   // gl.clearColor((t, 0, 0, 0)
 
   depth.bind()
