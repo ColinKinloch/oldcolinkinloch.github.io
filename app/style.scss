@@ -2,6 +2,7 @@ $bg: black;
 $text: gainsboro;
 $link: white;
 $head-back: rgba($bg, .6);
+$head-height: 42px;
 
 $fa-font-path: './fonts';
 @import './node_modules/font-awesome/scss/font-awesome';
@@ -42,9 +43,11 @@ header {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  height: $head-height;
   width: 100%;
 
   h1 {
+    align-self: center;
     margin: 0;
     padding: 0 10px;
   }
@@ -60,6 +63,10 @@ nav {
 
   &.main {
     flex-grow: 1;
+  }
+
+  &.social {
+    font-size: 18pt;
   }
 
   a {
@@ -101,6 +108,23 @@ $doc-bg: white;
   }
 }
 
+.cv-pdf {
+  height: 100%;
+  width: 100%;
+
+  object {
+    height: inherit;
+    width: inherit;
+  }
+}
+
+.gh-list {
+  background-color: $head-back;
+  bottom: 0;
+  position: absolute;
+  right: 0;
+}
+
 .full {
   left: 0;
   position: fixed;
@@ -127,6 +151,7 @@ main {
   display: flex;
   flex: 1;
   flex-direction: column;
+  margin-top: $head-height;
   //overflow-y: auto;
 
   object {

@@ -32,6 +32,9 @@ let repoString = sessionStorage.getItem(repoUrl)
 let fillDom = (repos) => {
   let elCont = document.querySelector('.gh-list')
   while (elCont.firstChild) elCont.firstChild.remove()
+  let h = document.createElement('h1')
+  h.innerHTML = 'My Projects:'
+  elCont.appendChild(h)
   let ul = document.createElement('ol')
   elCont.appendChild(ul)
   for (let repo of repos) {
