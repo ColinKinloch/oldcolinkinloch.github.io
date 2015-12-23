@@ -45,7 +45,13 @@ gulp.task('eslint', () => {
     .pipe(eslint.format())
     .pipe(eslint.failAfterError())
 })
-gulp.task('copy', () => {
+gulp.task('copy:fonts', () => {
+  return gulp.src([
+    'app/fonts/*'
+  ])
+    .pipe(gulp.dest('dist/fonts'))
+})
+gulp.task('copy', ['copy:fonts'], () => {
   return gulp.src([
     'app/test.png',
     'app/CNAME',
