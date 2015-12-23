@@ -53,7 +53,8 @@ gulp.task('copy', () => {
     'app/duck.gltf',
     'app/duck.bin',
     'app/duck0FS.glsl',
-    'app/duck0VS.glsl'
+    'app/duck0VS.glsl',
+    'app/favicon.ico'
   ])
     .pipe(gulp.dest('dist'))
 })
