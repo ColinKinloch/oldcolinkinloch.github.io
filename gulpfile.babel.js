@@ -48,7 +48,12 @@ gulp.task('eslint', () => {
 gulp.task('copy', () => {
   return gulp.src([
     'app/test.png',
-    'app/CNAME'
+    'app/CNAME',
+    'app/ColinKinloch.pdf',
+    'app/duck.gltf',
+    'app/duck.bin',
+    'app/duck0FS.glsl',
+    'app/duck0VS.glsl'
   ])
     .pipe(gulp.dest('dist'))
 })
