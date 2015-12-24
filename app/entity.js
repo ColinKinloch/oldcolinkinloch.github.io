@@ -126,14 +126,6 @@ let EntityCurry = (gl) => {
       this.uniformLocations['normal'] = this.material.getUniformLocation('normalMatrix')
     }
     draw (projection) {
-      let t = (performance.timing.navigationStart + performance.now()) / 10000
-
-      this.rotation.x = Math.sin(5 * t)
-      this.rotation.y = Math.tan(t * 7)
-      this.rotation.z = Math.sin(t)
-      this.rotation.normalize()
-      this.rotation.calculateW()
-
       this.updateMatrix()
       this.uniforms['modelView'] = this.matrix.mat
       // glm.mat4.translate(mv, mv, this.position.vec)
@@ -146,7 +138,6 @@ let EntityCurry = (gl) => {
       this.uniforms['projection'] = projection
 
       this.material.use()
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
       this.buffers['index'].bind()
       /*

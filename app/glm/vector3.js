@@ -10,6 +10,12 @@ let Vector3 = class extends Vector2 {
   reset () {
     this.vec = glm.vec3.create()
   }
+  add (v) {
+    glm.vec3.add(this.vec, this.vec, v.vec)
+  }
+  multiply (v) {
+    glm.vec3.multiply(this.vec, this.vec, v.vec)
+  }
   get z () {
     return this.vec[2]
   }

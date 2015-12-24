@@ -75,13 +75,13 @@ let PostCurry = (gl) => {
 
       gl.uniform1f(this.timeUniform, t)
       gl.uniform1i(this.frameUniform, 0)
-      gl.uniform1i(this.depthUniform, 2)
+      gl.uniform1i(this.depthUniform, 1)
 
       gl.uniform2iv(this.sizeUniform, size)
 
       gl.activeTexture(gl.TEXTURE0 + 0)
       this.texture.bind()
-      gl.activeTexture(gl.TEXTURE0 + 2)
+      gl.activeTexture(gl.TEXTURE0 + 1)
       this.depth.bind()
 
       gl.viewport(0, 0, size[0], size[1])

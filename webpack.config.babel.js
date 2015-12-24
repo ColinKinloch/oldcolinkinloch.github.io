@@ -4,7 +4,8 @@ import babelrc from './babelConfig.js'
 let config = {
   context: `${__dirname}/app`,
   entry: {
-    index: './main.js'
+    index: './main.js',
+    components: './components.js'
   },
   output: {
     path: `${__dirname}/dist`,

@@ -118,10 +118,10 @@ $doc-bg: white;
   }
 }
 
-.gh-list {
+gh-list {
   background-color: $head-back;
   bottom: 0;
-  position: absolute;
+  position: fixed;
   right: 0;
 }
 
