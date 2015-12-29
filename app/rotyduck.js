@@ -117,35 +117,53 @@ let rotyduck = function () {
   let ditherFragSrc = require('./shader/post/dithering.glslf')
   let ditherFrag = new GL.Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
   let dither = new GL.Post(ditherFrag)
+
+  let bayer = [
+     1, 49, 13, 61,  4, 52, 16, 64,
+    33, 17, 45, 29, 36, 20, 48, 32,
+     9, 57,  5, 53, 12, 60,  8, 56,
+    41, 25, 37, 21, 44, 28, 40, 24,
+     3, 51, 15, 63,  2, 50, 14, 62,
+    35, 19, 47, 31, 34, 18, 46, 30,
+    11, 59,  7, 55, 10, 58,  6, 54,
+    43, 27, 39, 23, 42, 26, 38, 22
+  ]
+  let bm = 255 / 65
+  let width, height
+  width = height = 8
+  let channels = 1
+  let pixels = new Uint8Array(width * height * channels)
+
+  for (let i in bayer) {
+    let p = i * channels
+    let v = bayer[i] * bm
+    pixels[p] = v
+  }
+
+  let format
+  switch (channels) {
+    case 1:
+      format = gl.ALPHA
+      break
+    case 3:
+      format = gl.RGB
+      break
+    case 4:
+      format = gl.RGBA
+  }
+
   dither.bayer = new GL.Texture2D({
-    format: gl.ALPHA
+    format: format
   })
   dither.bayer.bind()
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  let bayerImg = new Image()
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+  gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, pixels)
 
-  let bayerUniform = dither.program.getUniformLocation('bayer')
-  gl.uniform1i(bayerUniform, 2)
-  gl.activeTexture(gl.TEXTURE0 + 2)
-  dither.bind()
-
-  fetch('./bayer.png')
-  .then((res) => {
-    return res.blob()
-  })
-  .then((blob) => {
-    return new Promise((resolve, reject) => {
-      let imgUrl = window.URL.createObjectURL(blob)
-      bayerImg.onload = (hi) => {
-        resolve(hi)
-      }
-      bayerImg.src = imgUrl
-    })
-  })
-  .then(() => {
-    dither.bayer.bind()
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, gl.ALPHA, gl.UNSIGNED_BYTE, bayerImg)
-  })
+  dither.bayerUniform = dither.program.getUniformLocation('bayer')
+  dither.bayer.unbind()
 
   let deresFragSrc = require('./shader/post/deres.glslf')
   let deresFrag = new GL.Shader(gl.FRAGMENT_SHADER, deresFragSrc)
@@ -275,9 +293,9 @@ let rotyduck = function () {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     dither.program.use()
-    gl.uniform1i(bayerUniform, 2)
-    dither.bayer.bind()
+    gl.uniform1i(dither.bayerUniform, 2)
     gl.activeTexture(gl.TEXTURE0 + 2)
+    dither.bayer.bind()
     dither.draw([draw.width, draw.height])
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)

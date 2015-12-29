@@ -71,7 +71,6 @@ let PostCurry = (gl) => {
       this.program.use()
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
       gl.vertexAttribPointer(this.positionAttrib, 2, gl.UNSIGNED_BYTE, false, 0, 0)
-      this.texture.bind()
 
       gl.uniform1f(this.timeUniform, t)
       gl.uniform1i(this.frameUniform, 0)
