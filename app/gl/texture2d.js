@@ -8,8 +8,8 @@ let Texture2DCurry = (gl) => {
         format: gl.RGBA,
         mag: gl.NEAREST,
         min: gl.LINEAR,
-        wrapS: gl.MIRRORED_REPEAT,
-        wrapT: gl.MIRRORED_REPEAT,
+        wrapS: gl.CLAMP_TO_EDGE,
+        wrapT: gl.CLAMP_TO_EDGE,
         width: 32,
         height: 32
       })

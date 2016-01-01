@@ -30,11 +30,14 @@ let rotyduck = function () {
   let gl = ctx.gl
   */
   let GL = GLCurry(el, {
-    version: 2,
+    version: 1,
     options: {
       antialias: false,
       alpha: true
-    }
+    },
+    extensions: [
+      'WEBGL_depth_texture'
+    ]
   })
   let gl = GL.gl
   let Entity = EntityCurry(gl)
@@ -110,9 +113,11 @@ let rotyduck = function () {
   }
   */
 
+  /*
   let blurFragSrc = require('./shader/post/gaussianBlur.glslf')
   let blurFrag = new GL.Shader(gl.FRAGMENT_SHADER, blurFragSrc)
   let blur = new GL.Post(blurFrag)
+  */
 
   let ditherFragSrc = require('./shader/post/dithering.glslf')
   let ditherFrag = new GL.Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
@@ -210,7 +215,7 @@ let rotyduck = function () {
     depth.resize(w * scale, h * scale)
     deres.resize(w, h)
     dither.resize(w * scale, h * scale)
-    blur.resize(w, h)
+    // blur.resize(w, h)
     draw.resize(w * scale, h * scale)
     // buffResize(w, h)
   }

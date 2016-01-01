@@ -1,9 +1,9 @@
-#version 300 es
+#version 100
 
 precision mediump float;
 
-in vec2 position;
-out vec2 screenCoord;
+attribute vec2 position;
+varying vec2 screenCoord;
 
 void main() {
   screenCoord = position * 0.5;

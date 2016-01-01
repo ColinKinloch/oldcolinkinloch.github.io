@@ -1,4 +1,4 @@
-#version 300 es
+#version 100
 precision mediump float;
 
 uniform sampler2D frame;
@@ -6,11 +6,10 @@ uniform sampler2D depth;
 
 uniform ivec2 destSize;
 
-in vec2 screenCoord;
-out vec4 fragmentColour;
+varying vec2 screenCoord;
 
 void main() {
-  float d = 1 - texture(depth, screenCoord).r;
-  vec4 c = texture(frame, screenCoord);
-  fragmentColour = vec4(c.rgb * d, c.a);
+  float d = 1. - texture2D(depth, screenCoord).r;
+  vec4 c = texture2D(frame, screenCoord);
+  gl_FragColor = vec4(c.rgb * d, c.a);
 }

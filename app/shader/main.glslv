@@ -1,11 +1,11 @@
-#version 300 es
+#version 100
 
 #pragma glslify: deres = require(./lib/deres.glsl)
 
-in vec3 position;
-in vec3 normal;
+attribute vec3 position;
+attribute vec3 normal;
 
-out vec3 vNormal;
+varying vec3 vNormal;
 
 uniform mat3 normalMatrix;
 uniform mat4 modelViewMatrix;

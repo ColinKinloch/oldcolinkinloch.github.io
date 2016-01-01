@@ -1,4 +1,4 @@
-#version 300 es
+#version 100
 precision mediump float;
 
 #pragma glslify: deres = require(../lib/deres.glsl)
@@ -6,12 +6,10 @@ precision mediump float;
 uniform sampler2D frame;
 uniform sampler2D depth;
 
-in vec2 screenCoord;
+varying vec2 screenCoord;
 
 uniform float t;
 
-out vec4 fragmentColour;
-
 void main() {
-  fragmentColour = deres(texture(depth, screenCoord) * texture(frame, deres(screenCoord, t)), t * .5);
+  gl_FragColor = deres(texture2D(depth, screenCoord) * texture2D(frame, deres(screenCoord, t)), t * .5);
 }

@@ -1,11 +1,10 @@
-#version 300 es
+#version 100
 precision mediump float;
 
 uniform sampler2D frame;
 
-in vec2 screenCoord;
-out vec4 fragmentColour;
+varying vec2 screenCoord;
 
 void main() {
-  fragmentColour = texture(frame, screenCoord);
+  gl_FragColor = texture2D(frame, screenCoord);
 }
