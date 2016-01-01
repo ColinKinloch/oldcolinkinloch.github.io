@@ -11,8 +11,8 @@ let PostCurry = (gl) => {
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Int8Array([
     0, 0,
-    0, 4,
-    4, 0
+    4, 0,
+    0, 4
   ]), gl.STATIC_DRAW)
 
   let Post = class {
@@ -34,7 +34,7 @@ let PostCurry = (gl) => {
       this.positionAttrib = this.program.getAttribLocation('position')
 
       this.frameUniform = this.program.getUniformLocation('frame')
-      this.depthUniform = this.program.getUniformLocation('depth')
+      // this.depthUniform = this.program.getUniformLocation('depth')
 
       this.sizeUniform = this.program.getUniformLocation('destSize')
 
@@ -42,10 +42,13 @@ let PostCurry = (gl) => {
 
       this.frame = new Framebuffer()
 
+      /*
       this.depth = new Texture2D({
         type: gl.UNSIGNED_SHORT,
         format: gl.DEPTH_COMPONENT
       })
+      */
+      this.depth = gl.createRenderbuffer()
       this.texture = new Texture2D()
 
       this.frame.bind()
@@ -53,7 +56,11 @@ let PostCurry = (gl) => {
       this.resize(this.width, this.height)
 
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture.texture, 0)
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depth.texture, 0)
+
+      gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth)
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height)
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.depth)
+      // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.depth.texture, 0)
 
       this.frame.check()
 
@@ -64,6 +71,8 @@ let PostCurry = (gl) => {
 
     bind () {
       this.frame.bind()
+      gl.bindRenderbuffer(gl.RENDERBUFFER, this.depth)
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height)
       gl.viewport(0, 0, this.width, this.height)
     }
 
@@ -74,14 +83,16 @@ let PostCurry = (gl) => {
 
       gl.uniform1f(this.timeUniform, t)
       gl.uniform1i(this.frameUniform, 0)
-      gl.uniform1i(this.depthUniform, 1)
+      // gl.uniform1i(this.depthUniform, 1)
 
       gl.uniform2iv(this.sizeUniform, size)
 
       gl.activeTexture(gl.TEXTURE0 + 0)
       this.texture.bind()
+      /*
       gl.activeTexture(gl.TEXTURE0 + 1)
       this.depth.bind()
+      */
 
       gl.viewport(0, 0, size[0], size[1])
 
@@ -95,7 +106,7 @@ let PostCurry = (gl) => {
       this.width = width
       this.height = height
       gl.uniform2iv(this.sizeUniform, [width, height])
-      this.depth.resize(width, height)
+      // this.depth.resize(width, height)
       this.texture.resize(width, height)
     }
   }

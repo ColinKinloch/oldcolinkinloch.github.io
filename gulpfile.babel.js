@@ -70,7 +70,7 @@ gulp.task('clean', () => {
 })
 
 let port = 8080
-let host = 'localhost'
+let host = '0.0.0.0'
 
 gulp.task('serve', () => {
   runSequence(['jade', 'sass', 'copy'], 'server', () => {

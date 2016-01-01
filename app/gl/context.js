@@ -30,6 +30,13 @@ let Context = class {
     gl.clearColor(0, 0, 0, 0)
     gl.clearDepth(1)
 
+    gl.enable(gl.DEPTH_TEST)
+    gl.depthFunc(gl.LEQUAL)
+
+    gl.enable(gl.CULL_FACE)
+    gl.frontFace(gl.CCW)
+    gl.cullFace(gl.BACK)
+
     this.Texture2D = Texture2D(gl)
     this.Shader = Shader(gl)
     this.ShaderProgram = ShaderProgram(gl)

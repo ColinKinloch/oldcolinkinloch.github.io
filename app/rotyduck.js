@@ -35,9 +35,7 @@ let rotyduck = function () {
       antialias: false,
       alpha: true
     },
-    extensions: [
-      'WEBGL_depth_texture'
-    ]
+    extensions: []
   })
   let gl = GL.gl
   let Entity = EntityCurry(gl)
@@ -174,9 +172,11 @@ let rotyduck = function () {
   let deresFrag = new GL.Shader(gl.FRAGMENT_SHADER, deresFragSrc)
   let deres = new GL.Post(deresFrag)
 
+  /*
   let depthFragSrc = require('./shader/post/shadeDepth.glslf')
   let depthFrag = new GL.Shader(gl.FRAGMENT_SHADER, depthFragSrc)
   let depth = new GL.Post(depthFrag)
+  */
 
   let drawFragSrc = require('./shader/post/draw.glslf')
   let drawFrag = new GL.Shader(gl.FRAGMENT_SHADER, drawFragSrc)
@@ -187,9 +187,10 @@ let rotyduck = function () {
   }
 
   let resize = function (w, h) {
-    el.width = w
-    el.height = h
-    gl.viewport(0, 0, w, h)
+    let pr = devicePixelRatio
+    el.width = w * pr
+    el.height = h * pr
+    gl.viewport(0, 0, w * pr, h * pr)
     let r = w / h
     glm.mat4.perspective(projection, 45, r, 3, 100)
 
@@ -212,7 +213,7 @@ let rotyduck = function () {
 
     // glm.mat4.translate(projection, projection, [0, 0, -5])
     let scale = 1 // 0.125
-    depth.resize(w * scale, h * scale)
+    // depth.resize(w * scale, h * scale)
     deres.resize(w, h)
     dither.resize(w * scale, h * scale)
     // blur.resize(w, h)
@@ -242,7 +243,8 @@ let rotyduck = function () {
     rafId = requestAnimationFrame(render)
     // gl.clearColor((t, 0, 0, 0)
 
-    depth.bind()
+    // depth.bind()
+    dither.bind()
 
     let t = (performance.timing.navigationStart + performance.now()) / 10000
 
@@ -258,9 +260,7 @@ let rotyduck = function () {
       entity.draw(projection)
     }
 
-    dither.bind()
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    depth.draw([dither.width, dither.height])
+    // depth.draw([dither.width, dither.height])
 
     /* gl.bindFramebuffer(gl.FRAMEBUFFER, frame)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
