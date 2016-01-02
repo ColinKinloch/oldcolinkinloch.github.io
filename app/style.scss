@@ -109,16 +109,12 @@ $doc-bg: white;
 }
 
 .cv-pdf {
-  height: 100%;
-  width: 100%;
-
-  object {
-    height: inherit;
-    width: inherit;
-  }
+  flex: 1;
+  margin: 12px;
 }
 
-gh-list, .gh-list {
+gh-list,
+.gh-list {
   background-color: $head-back;
   bottom: 0;
   position: fixed;
@@ -153,10 +149,6 @@ main {
   flex-direction: column;
   margin-top: $head-height;
   //overflow-y: auto;
-
-  object {
-    flex: 1;
-  }
 
   .stuff {
     flex: 1;
