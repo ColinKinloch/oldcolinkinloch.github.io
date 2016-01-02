@@ -78,20 +78,16 @@ let EntityCurry = (gl) => {
         0, 0, -1
       ]))
 
-      this.buffers['index'] = new Buffer({
-        binding: gl.ELEMENT_ARRAY_BUFFER,
-        count: 36
-      })
-      this.buffers['index'].bufferData(new Uint16Array([
+      let indArray = new Uint16Array([
         // Top
-        0, 1, 2,
-        0, 2, 3,
+        2, 1, 0,
+        3, 2, 0,
         // Bottom
-        4, 5, 6,
-        4, 6, 7,
+        6, 5, 4,
+        7, 6, 4,
         // Left
-        8, 9, 10,
-        8, 10, 11,
+        10, 9, 8,
+        11, 10, 8,
         // Right
         12, 13, 14,
         12, 14, 15,
@@ -101,7 +97,13 @@ let EntityCurry = (gl) => {
         // Back
         20, 21, 22,
         20, 22, 23
-      ]))
+      ])
+
+      this.buffers['index'] = new Buffer({
+        binding: gl.ELEMENT_ARRAY_BUFFER,
+        count: indArray.length
+      })
+      this.buffers['index'].bufferData(indArray)
 
       this.uniforms['normal'] = glm.mat3.create()
       this.uniforms['projection'] = glm.mat4.create()

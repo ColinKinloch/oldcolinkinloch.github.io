@@ -3,15 +3,14 @@ html
     title Colin Kinloch
     link(rel="stylesheet" href="style.css")
     link(rel="shortcut icon" href="favicon.ico")
-    link(rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico")
   body
     canvas.full.back#main
     header.front.fixed
       h1 Colin Kinloch
       nav.main
-        a(href="#cv/pdf")
+        a(href="#/cv")
           span cv
-        a(href="#portfolio")
+        a(href="#/portfolio")
           span portfolio
       nav.social
         a(href="http://www.github.com/ColinKinloch")
@@ -114,7 +113,7 @@ html
         li hello
         li hello
       canvas#pdf-canvas
-      gh-list(user="ColinKinloch")
+      //- gh-list(user="ColinKinloch")
       //-
         article.doc.a4.cv
           section
@@ -126,9 +125,8 @@ html
               li MSc Computer Science
               li BSc Computing and Mathematics
       .cv-pdf
-        //
-          object(data="ColinKinloch.pdf" type="application/pdf")
-            a(href="ColinKinloch.pdf") CV pdf
+        object(data="ColinKinloch.pdf" type="application/pdf")
+          a(href="ColinKinloch.pdf") CV pdf
       .gh-list
     script(src="components.js")
     script(src="index.js")

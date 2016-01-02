@@ -8,8 +8,11 @@ import frag from './shader/main.glslf'
 
 let rotyduck = function () {
   let pos = []
-  let m = new Vector3(5, 10, 8)
-  let c = new Vector3(0, -8, -8)
+  let m = new Vector3(5, 13, 8)
+  let c = new Vector3(0, 4, -9)
+  let l = new Vector3(1, 1, 1)
+  l.multiply(m)
+  l.add(c)
   for (let i = 0; i < 30; ++i) {
     let r = () => { return 2 * Math.random() - 1 }
     let v = new Vector3(r(), r(), r())
@@ -239,6 +242,7 @@ let rotyduck = function () {
   })
 
   let rafId = 0
+  let ot = (performance.timing.navigationStart + performance.now()) / 10000
   let render = function () {
     rafId = requestAnimationFrame(render)
     // gl.clearColor((t, 0, 0, 0)
@@ -247,6 +251,8 @@ let rotyduck = function () {
     dither.bind()
 
     let t = (performance.timing.navigationStart + performance.now()) / 10000
+    let dt = t - ot
+    if (dt > 0.1) dt = 0.1
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     entity.rotation.x = Math.sin(5 * t)
@@ -256,7 +262,12 @@ let rotyduck = function () {
     entity.rotation.calculateW()
 
     for (let d = 0; d < pos.length; ++d) {
-      entity.position = pos[d]
+      let p = pos[d]
+
+      p.y -= dt * 10
+      if (p.y < -l.y) p.y = -p.y
+
+      entity.position = p
       entity.draw(projection)
     }
 
@@ -311,6 +322,8 @@ let rotyduck = function () {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     depth.draw() */
+
+    ot = t
     if (paused) {
       cancelAnimationFrame(rafId)
     }
