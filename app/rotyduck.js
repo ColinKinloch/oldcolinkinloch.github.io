@@ -114,62 +114,113 @@ let rotyduck = function () {
   }
   */
 
-  /*
-  let blurFragSrc = require('./shader/post/gaussianBlur.glslf')
-  let blurFrag = new GL.Shader(gl.FRAGMENT_SHADER, blurFragSrc)
-  let blur = new GL.Post(blurFrag)
-  */
+  let blur
+  {
+    let blurFragSrc = require('./shader/post/gaussianBlur.glslf')
+    let blurFrag = new GL.Shader(gl.FRAGMENT_SHADER, blurFragSrc)
+    blur = new GL.Post(blurFrag)
 
-  let ditherFragSrc = require('./shader/post/dithering.glslf')
-  let ditherFrag = new GL.Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
-  let dither = new GL.Post(ditherFrag)
+    let gaussianCurry = (sigma) => {
+      let s = 2 * Math.pow(sigma, 2)
+      return (x, y) => {
+        return 1 / (Math.PI * s) * Math.pow(Math.E, -(x * x + y * y) / s)
+      }
+    }
+    let g = gaussianCurry(1.85)
+    let width, height
+    width = height = 8
+    let channels = 1
+    let pixels = new Uint8Array(width * height * channels)
+    let g0 = g(0, 0)
+    let mult = 255 / g0
+    for (let x = 0; x < width; ++x) {
+      for (let y = 0; y < height; ++y) {
+        pixels[y * width + x] = mult * g(x, y)
+      }
+    }
+    console.log(mult)
+    console.log(pixels)
 
-  let bayer = [
-     1, 49, 13, 61,  4, 52, 16, 64,
-    33, 17, 45, 29, 36, 20, 48, 32,
-     9, 57,  5, 53, 12, 60,  8, 56,
-    41, 25, 37, 21, 44, 28, 40, 24,
-     3, 51, 15, 63,  2, 50, 14, 62,
-    35, 19, 47, 31, 34, 18, 46, 30,
-    11, 59,  7, 55, 10, 58,  6, 54,
-    43, 27, 39, 23, 42, 26, 38, 22
-  ]
-  let bm = 255 / 65
-  let width, height
-  width = height = 8
-  let channels = 1
-  let pixels = new Uint8Array(width * height * channels)
+    let format
+    switch (channels) {
+      case 1:
+        format = gl.ALPHA
+        break
+      case 3:
+        format = gl.RGB
+        break
+      case 4:
+        format = gl.RGBA
+    }
 
-  for (let i in bayer) {
-    let p = i * channels
-    let v = bayer[i] * bm
-    pixels[p] = v
+    blur.gauss = new GL.Texture2D({
+      format: format
+    })
+    blur.gauss.bind()
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, pixels)
+    blur.gaussUniform = blur.program.getUniformLocation('gauss')
+    blur.gaussMultUniform = blur.program.getUniformLocation('gaussMult')
+    blur.program.use()
+    gl.uniform1f(blur.gaussMultUniform, g0)
+    blur.gauss.unbind()
   }
 
-  let format
-  switch (channels) {
-    case 1:
-      format = gl.ALPHA
-      break
-    case 3:
-      format = gl.RGB
-      break
-    case 4:
-      format = gl.RGBA
+  let dither
+  {
+    let ditherFragSrc = require('./shader/post/dithering.glslf')
+    let ditherFrag = new GL.Shader(gl.FRAGMENT_SHADER, ditherFragSrc)
+    dither = new GL.Post(ditherFrag)
+
+    let bayer = new Uint8Array([
+       1, 49, 13, 61,  4, 52, 16, 64,
+      33, 17, 45, 29, 36, 20, 48, 32,
+       9, 57,  5, 53, 12, 60,  8, 56,
+      41, 25, 37, 21, 44, 28, 40, 24,
+       3, 51, 15, 63,  2, 50, 14, 62,
+      35, 19, 47, 31, 34, 18, 46, 30,
+      11, 59,  7, 55, 10, 58,  6, 54,
+      43, 27, 39, 23, 42, 26, 38, 22
+    ])
+    let bm = 255 / 65
+    let width, height
+    width = height = 8
+    let channels = 1
+    let pixels = new Uint8Array(width * height * channels)
+
+    for (let i in bayer) {
+      let p = i * channels
+      let v = bayer[i] * bm
+      pixels[p] = v
+    }
+
+    let format
+    switch (channels) {
+      case 1:
+        format = gl.ALPHA
+        break
+      case 3:
+        format = gl.RGB
+        break
+      case 4:
+        format = gl.RGBA
+    }
+
+    dither.bayer = new GL.Texture2D({
+      format: format
+    })
+    dither.bayer.bind()
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, pixels)
+    dither.bayerUniform = dither.program.getUniformLocation('bayer')
+    dither.bayer.unbind()
   }
-
-  dither.bayer = new GL.Texture2D({
-    format: format
-  })
-  dither.bayer.bind()
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
-  gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, pixels)
-
-  dither.bayerUniform = dither.program.getUniformLocation('bayer')
-  dither.bayer.unbind()
 
   let deresFragSrc = require('./shader/post/deres.glslf')
   let deresFrag = new GL.Shader(gl.FRAGMENT_SHADER, deresFragSrc)
@@ -219,7 +270,7 @@ let rotyduck = function () {
     // depth.resize(w * scale, h * scale)
     deres.resize(w, h)
     dither.resize(w * scale, h * scale)
-    // blur.resize(w, h)
+    blur.resize(w, h)
     draw.resize(w * scale, h * scale)
     // buffResize(w, h)
   }
@@ -248,7 +299,8 @@ let rotyduck = function () {
     // gl.clearColor((t, 0, 0, 0)
 
     // depth.bind()
-    dither.bind()
+    blur.bind()
+    // dither.bind()
 
     let t = (performance.timing.navigationStart + performance.now()) / 10000
     let dt = t - ot
@@ -261,6 +313,8 @@ let rotyduck = function () {
     entity.rotation.normalize()
     entity.rotation.calculateW()
 
+    /* let s = new Vector2(document.body.scrollWidth, document.body.scrollHeight)
+    l.y = (s.y - s.y * 2) * 0.005 */
     for (let d = 0; d < pos.length; ++d) {
       let p = pos[d]
 
@@ -304,6 +358,15 @@ let rotyduck = function () {
     // depth.depth = color[1]
     // _.extend(depth, temp)
     // dither.draw(250 * (0.5 + 0.3 * t3 * Math.tan(t2) * Math.sin(t * 10)))
+
+    dither.bind()
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+    blur.program.use()
+    gl.uniform1i(blur.gaussUniform, 2)
+    gl.activeTexture(gl.TEXTURE0 + 2)
+    blur.gauss.bind()
+    blur.draw([draw.width, draw.height])
 
     draw.bind()
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
