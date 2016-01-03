@@ -46,29 +46,6 @@ header {
   height: $head-height;
   width: 100%;
 
-  h1 {
-    align-self: center;
-    margin: 0;
-    padding: 0 10px;
-  }
-}
-
-nav {
-  align-items: bottom;
-  display: flex;
-  flex-direction: row;
-
-  font-size: 14pt;
-  min-height: 30px;
-
-  &.main {
-    flex-grow: 1;
-  }
-
-  &.social {
-    font-size: 18pt;
-  }
-
   a {
     align-content: center;
     border-bottom-color: transparent;
@@ -86,6 +63,29 @@ nav {
       align-self: center;
       display: inline;
     }
+  }
+
+  h1 {
+    align-self: center;
+    margin: 0;
+    //padding: 0 10px;
+  }
+}
+
+nav {
+  align-items: bottom;
+  display: flex;
+  flex-direction: row;
+
+  font-size: 14pt;
+  min-height: 30px;
+
+  &.main {
+    flex-grow: 1;
+  }
+
+  &.social {
+    font-size: 18pt;
   }
 }
 

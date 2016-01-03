@@ -57,8 +57,24 @@ class GHList extends React.Component {
 }
 ReactDom.render(React.createElement(GHList, {user: 'ColinKinloch'}), document.querySelector('.gh-list'))
 
+let main = () => {
+  ReactDom.render(
+    React.createElement('div', {},
+      React.createElement('img', {src: 'https://gravatar.com/avatar/6cb71a194c8677985b0df9ffdb923469'}),
+      React.createElement('p', {}, 'A go getting results driven self motivator. A synergistic team player. A street walking cheetah with a heart full of napalm. The bees knees. A software unicorn.')
+    ),
+    document.querySelector('main')
+  )
+}
+
+let portfolio = () => {
+  ReactDom.render(React.createElement(GHList, {user: 'ColinKinloch'}), document.querySelector('main'))
+}
+
 let router = Router({
-  '/cv': cv
+  '/': main,
+  '/cv': cv,
+  '/portfolio': portfolio
 })
 
 router.init()
